@@ -11,7 +11,7 @@ import BIP39swift
 import CryptoSwift
 
 public struct AptosAddress {
-    var data:Data
+    public var data:Data
     
     public static let SIZE: Int = 32
     
