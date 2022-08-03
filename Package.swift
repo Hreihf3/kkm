@@ -17,7 +17,6 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.4.3"),
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "6.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.4.1"),
         .package(name:"TweetNacl",url: "https://github.com/lishuailibertine/tweetnacl-swiftwrap", from: "1.0.5"),
@@ -28,7 +27,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AptosSwift",
-            dependencies: ["Alamofire","PromiseKit","CryptoSwift","TweetNacl","BIP39swift"]),
+            dependencies: ["PromiseKit","CryptoSwift","TweetNacl","BIP39swift"]),
         .testTarget(
             name: "AptosSwiftTests",
             dependencies: ["AptosSwift"]),

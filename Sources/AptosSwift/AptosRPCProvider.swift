@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Alamofire
 import PromiseKit
 
 public struct AptosRPCProvider {
