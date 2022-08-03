@@ -56,13 +56,13 @@ public struct AptosKeyPair {
         return AptosAddress(self.publicKeyData)
     }
     
-    public init(privateKey:Data) throws {
-        let keyPair = try NaclSign.KeyPair.keyPair(fromSeed:privateKey)
+    public init(privateKeyData:Data) throws {
+        let keyPair = try NaclSign.KeyPair.keyPair(fromSeed:privateKeyData)
         self.secretKey = keyPair.secretKey
     }
     
     public init(seed: Data) throws {
-        try self.init(privateKey: seed[0..<32])
+        try self.init(privateKeyData: seed[0..<32])
     }
     
     public init(mnemonics:String) throws {
