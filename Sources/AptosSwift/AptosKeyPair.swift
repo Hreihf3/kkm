@@ -45,7 +45,7 @@ public struct AptosKeyPair {
     }
     
     public var address:AptosAddress {
-        return AptosAddress(pubKey:self.publicKey)
+        return AptosAddress(self.publicKey)
     }
     
     public init(privateKey:Data) throws {
