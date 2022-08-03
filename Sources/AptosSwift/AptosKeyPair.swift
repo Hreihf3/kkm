@@ -19,11 +19,11 @@ public struct AptosAddress {
         self.data.toHexString()
     }
     
-    public init(pubKey:Data) {
+    public init(_ pubKey:Data) {
         self.data = Data(pubKey.bytes + [0]).sha3(.sha256)
     }
     
-    public init?(string:String) {
+    public init?(_ string:String) {
         let addressData = Data(hex: string)
         guard addressData.count == AptosAddress.SIZE else {
             return nil
