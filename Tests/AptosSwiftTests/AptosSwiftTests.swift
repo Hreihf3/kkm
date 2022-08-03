@@ -9,7 +9,7 @@ final class AptosSwiftTests: XCTestCase {
     }
     
     func testKeyPair() throws {
-        let privateKeypair = try! AptosKeyPair(privateKey: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
+        let privateKeypair = try! AptosKeyPair(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
         let mnemonicsKeypair = try! AptosKeyPair(mnemonics: "rabbit wave faint history little wave capable swamp fringe cousin filter boat")
         print("privateKeypair private:",privateKeypair.privateKey)
         print("privateKeypair publickey:",privateKeypair.publicKey)
