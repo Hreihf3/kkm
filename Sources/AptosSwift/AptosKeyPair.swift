@@ -10,6 +10,28 @@ import TweetNacl
 import BIP39swift
 import CryptoSwift
 
+public struct AptosAddress {
+    var data:Data
+    
+    public static let SIZE: Int = 32
+    
+    public var address:String {
+        self.data.toHexString()
+    }
+    
+    public init(data:Data) {
+        self.data = data
+    }
+    
+    public init?(string:String) {
+        let addressData = Data(hex: string)
+        guard addressData.count == AptosAddress.SIZE else {
+            return nil
+        }
+        self.data = addressData
+    }
+}
+
 public struct AptosKeyPair {
     public var mnemonics: String?
     public var secretKey:Data
@@ -22,8 +44,8 @@ public struct AptosKeyPair {
         return secretKey[32..<64]
     }
     
-    public var address:String {
-        return Data(self.publicKey.bytes + [0]).sha3(.sha256).toHexString()
+    public var address:AptosAddress {
+        return AptosAddress(data: Data(self.publicKey.bytes + [0]).sha3(.sha256))
     }
     
     public init(privateKey:Data) throws {

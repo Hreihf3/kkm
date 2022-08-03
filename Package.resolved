@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire.git",
+      "state" : {
+        "revision" : "8dd85aee02e39dd280c75eef88ffdb86eed4b07b",
+        "version" : "5.6.2"
+      }
+    },
+    {
       "identity" : "bip39swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mathwallet/BIP39swift",
@@ -16,6 +25,15 @@
       "state" : {
         "revision" : "039f56c5d7960f277087a0be51f5eb04ed0ec073",
         "version" : "1.5.1"
+      }
+    },
+    {
+      "identity" : "promisekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mxcl/PromiseKit.git",
+      "state" : {
+        "revision" : "ed3192004c0b00b4b3d7baa9578ee655c66faae3",
+        "version" : "6.18.0"
       }
     },
     {
