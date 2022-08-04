@@ -26,14 +26,12 @@ public struct AptosRPCProvider {
         return self.GET(url: "\(nodeUrl)/accounts/\(address)")
     }
     
-    public func getAccountResources(address:String,resourceType:String?) -> Promise<[AccountResource]> {
-        var url = ""
-        if let _resourceType = resourceType {
-            url = "\(nodeUrl)/accounts/\(address)/resources\(_resourceType)"
-        } else {
-            url = "\(nodeUrl)/accounts/\(address)/resources"
-        }
-        return self.GET(url: url)
+    public func getAccountResources(address:String) -> Promise<[AccountResource]> {
+        return self.GET(url: "\(nodeUrl)/accounts/\(address)/resources")
+    }
+    
+    public func getAccountResources(address:String,resourceType:String) -> Promise<[AccountResource]> {
+        return self.GET(url: "\(nodeUrl)/accounts/\(address)/resources\(resourceType)")
     }
 }
 
