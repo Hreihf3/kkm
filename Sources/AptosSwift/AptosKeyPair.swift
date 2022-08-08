@@ -19,8 +19,8 @@ public struct AptosAddress {
         return  self.data.toHexString().addHexPrefix()
     }
     
-    public init(_ pubKey:Data) {
-        self.data = Data(pubKey.bytes + [0]).sha3(.sha256)
+    public init(_ data:Data) {
+        self.data = data
     }
     
     public init?(_ string:String) {
@@ -53,7 +53,8 @@ public struct AptosKeyPair {
     }
     
     public var address:AptosAddress {
-        return AptosAddress(self.publicKeyData)
+        let addressData = Data(self.publicKeyData.bytes + [0]).sha3(.sha256)
+        return AptosAddress(addressData)
     }
     
     public init(privateKeyData:Data) throws {
