@@ -19,7 +19,7 @@ public struct AptosRPCProvider {
     }
     
     public func fundAccount(address:String) -> Promise<[String]> {
-        return self.POST(url: "https://faucet.devnet.aptoslabs.com/mint?amount=0&address=\(address.replacingOccurrences(of: "0x", with: ""))", parameters: [] as! [String])
+        return self.POST(url: "https://faucet.devnet.aptoslabs.com/mint?amount=0&address=\(address.stripHexPrefix())", parameters: [] as! [String])
     }
     
     public func getChainInfo() -> Promise<ChainInfo> {
@@ -58,7 +58,7 @@ extension AptosRPCProvider {
                    return
                }
                guard data != nil else {
-                   rp.resolver.reject(AptosRpcProviderError.server(message: "Node response is empty"))
+                   rp.resolver.reject(AptosError.providerError("Node response is empty"))
                    return
                }
                rp.resolver.fulfill(data!)
@@ -73,7 +73,7 @@ extension AptosRPCProvider {
                if let resp = try? decoder.decode(T.self, from: data) {
                    return resp
                }
-               throw AptosRpcProviderError.server(message: "Parameter error or received wrong message")
+               throw AptosError.providerError("Parameter error or received wrong message")
            }
    }
     
@@ -115,7 +115,7 @@ extension AptosRPCProvider {
                 if let resp = try? decoder.decode(T.self, from: data) {
                     return resp
                 }
-                throw AptosRpcProviderError.server(message: "Parameter error or received wrong message")
+                throw AptosError.providerError("Parameter error or received wrong message")
             }
     }
 }

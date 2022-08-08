@@ -10,81 +10,60 @@ import TweetNacl
 import BIP39swift
 import CryptoSwift
 
-public struct AptosAddress {
-    public var data:Data
-    
-    public static let SIZE: Int = 32
-    
-    public var address:String {
-        return  self.data.toHexString().addHexPrefix()
-    }
-    
-    public init(_ pubKey:Data) {
-        self.data = Data(pubKey.bytes + [0]).sha3(.sha256)
-    }
-    
-    public init?(_ string:String) {
-        let addressData = Data(hex: string)
-        guard addressData.count == AptosAddress.SIZE else {
-            return nil
-        }
-        self.data = addressData
-    }
-}
-
-public struct AptosKeyPair {
+public struct AptosKeyPairEd25519 {
     public var mnemonics: String?
-    public var secretKey:Data
+    public var secretKey: Data
+    public var address: AptosAddress
     
-    public var privateKeyData:Data {
+    public var privateKeyData: Data {
         return secretKey[0..<32]
     }
     
-    public var publicKeyData:Data {
+    public var publicKeyData: Data {
         return secretKey[32..<64]
     }
     
-    public var privateKey:String {
+    public var privateKey: String {
         return self.privateKeyData.toHexString().addHexPrefix()
     }
     
-    public var publicKey:String {
+    public var publicKey: String {
         return self.publicKeyData.toHexString().addHexPrefix()
     }
     
-    public var address:AptosAddress {
-        return AptosAddress(self.publicKeyData)
-    }
-    
-    public init(privateKeyData:Data) throws {
-        let keyPair = try NaclSign.KeyPair.keyPair(fromSeed:privateKeyData)
-        self.secretKey = keyPair.secretKey
+    public init(privateKeyData: Data) throws {
+        try self.init(seed: privateKeyData)
     }
     
     public init(seed: Data) throws {
-        try self.init(privateKeyData: seed[0..<32])
+        guard seed.count == 32 else {
+            throw AptosError.keyError("Invalid Seed")
+        }
+        let keyPair = try NaclSign.KeyPair.keyPair(fromSeed: seed)
+        self.secretKey = keyPair.secretKey
+        self.address = try AptosAddress(Data(keyPair.publicKey.bytes + [0x00]).sha3(.sha256))
     }
     
-    public init(mnemonics:String) throws {
+    public init(mnemonics: String) throws {
         guard let seed = BIP39.seedFromMmemonics(mnemonics) else {
-            throw Error.invalidMnemonic
+            throw AptosError.keyError("Invalid Mnemonics")
         }
-        try self.init(seed: seed)
+        try self.init(seed: seed.subdata(in: 0..<32))
         self.mnemonics = mnemonics
     }
     
-    public static func randomKeyPair() throws -> AptosKeyPair {
+    public static func randomKeyPair() throws -> AptosKeyPairEd25519 {
         guard let mnemonic = try? BIP39.generateMnemonics(bitsOfEntropy: 128) else{
-            throw AptosKeyPair.Error.invalidMnemonic
+            throw AptosError.keyError("Invalid Mnemonics")
         }
-        return try AptosKeyPair(mnemonics: mnemonic)
+        return try AptosKeyPairEd25519(mnemonics: mnemonic)
     }
 }
 
-// MARK: - Sign&Verify
+// MARK: - Sign & Verify
 
-extension AptosKeyPair {
-    public func signDigest(messageDigest:Data) throws -> Data {
+extension AptosKeyPairEd25519 {
+    public func signDigest(messageDigest: Data) throws -> Data {
         return try NaclSign.signDetached(message: messageDigest, secretKey: secretKey)
     }
     
@@ -93,17 +72,5 @@ extension AptosKeyPair {
             return false
         }
         return ret
-    }
-}
-
-extension AptosKeyPair {
-    public enum Error: String, LocalizedError {
-        case invalidMnemonic
-        case invalidDerivePath
-        case unknown
-        
-        public var errorDescription: String? {
-            return "AptosKeyPair.Error.\(rawValue)"
-        }
     }
 }
