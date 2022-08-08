@@ -22,6 +22,10 @@ public struct AptosRPCProvider {
         return self.POST(url: "https://faucet.devnet.aptoslabs.com/mint?amount=0&address=\(address.replacingOccurrences(of: "0x", with: ""))", parameters: [] as! [String])
     }
     
+    public func getChainInfo() -> Promise<ChainInfo> {
+        return self.GET(url: nodeUrl)
+    }
+    
     public func getAccount(address:String) -> Promise<[AccountResult]> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address)")
     }

@@ -6,6 +6,15 @@
 //
 
 import Foundation
+//chaininfo
+public struct ChainInfo:Codable {
+    public let chainId:Int
+    public let epoch:String
+    public let ledgerVersion:String
+    public let oldestLedgerVersion:String
+    public let ledgerTimestamp:String
+    public let nodeRole:String
+}
 //AccountResult
 public struct AccountResult:Codable {
     public let sequenceNumber:String

@@ -25,8 +25,9 @@ final class AptosSwiftTests: XCTestCase {
 //                let keypair = try AptosKeyPair.randomKeyPair()
 //                let hashs = try provider.fundAccount(address: keypair.address.address).wait()
 //                print(hashs.first)
-                let account = try provider.getAccountResources(address: "0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5").wait()
-                print(account.count)
+//                let account = try provider.getAccountResources(address: "0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5").wait()
+                let chaininfo = try provider.getChainInfo().wait()
+                print(chaininfo.ledgerVersion)
                 reqeustExpectation.fulfill()
             } catch {
                 reqeustExpectation.fulfill()
