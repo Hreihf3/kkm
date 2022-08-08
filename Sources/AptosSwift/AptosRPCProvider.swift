@@ -30,8 +30,8 @@ public struct AptosRPCProvider {
         return self.GET(url: "\(nodeUrl)/accounts/\(address)/resources")
     }
     
-    public func getAccountResources(address:String,resourceType:String) -> Promise<[AccountResource]> {
-        return self.GET(url: "\(nodeUrl)/accounts/\(address)/resources\(resourceType)")
+    public func getAccountResource(address:String,resourceType:String) -> Promise<AccountResource> {
+        return self.GET(url: "\(nodeUrl)/accounts/\(address)/resource\(resourceType)")
     }
 }
 
