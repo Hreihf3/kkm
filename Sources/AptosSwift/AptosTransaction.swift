@@ -57,6 +57,11 @@ extension AptosTransaction: BorshCodable {
 public struct AptosSignedTransaction {
     public let transaction: AptosTransaction
     public let authenticator: AptosTransactionAuthenticator
+    
+    public init(transaction: AptosTransaction, authenticator: AptosTransactionAuthenticator) {
+        self.transaction = transaction
+        self.authenticator = authenticator
+    }
 }
 
 extension AptosSignedTransaction: BorshCodable {
