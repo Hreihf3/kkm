@@ -10,7 +10,7 @@ import CryptoSwift
 
 public let RAW_TRANSACTION_SALT = "APTOS::RawTransaction"
 
-public struct AptosTransaction {
+public struct AptosRawTransaction {
     public let sender: AptosAddress
     public let sequenceNumber: UInt64
     public let maxGasAmount: UInt64
@@ -35,21 +35,22 @@ public struct AptosTransaction {
         self.payload = payload
     }
     
-    public func signMessage() -> Data {
-        let prefix = RAW_TRANSACTION_SALT.data(using: .utf8)!.sha3(.sha256)
-        let transactionData = try! BorshEncoder().encode(self)
-        print(prefix.toHexString())
-        return Data(prefix.bytes+transactionData.bytes)
-    }
-    
-    public func sign(_ keypair: AptosKeyPairEd25519) throws -> AptosSignedTransaction {
-        let message = self.signMessage()
-        let signature = try keypair.sign(message: message)
-        return AptosSignedTransaction(transaction: self, authenticator: AptosTransactionAuthenticator.Ed25519(AptosTransactionAuthenticatorEd25519(publicKey: try AptosPublicKeyEd25519(keypair.publicKeyData), signature: signature)))
+    public func sign(_ keyPair: AptosKeyPairEd25519) throws -> AptosSignedTransaction {
+        var message = Data()
+        message.append("APTOS::RawTransaction".data(using: .utf8)!.sha3(.sha256))
+        
+        try self.serialize(to: &message)
+        
+        let publicKey = keyPair.publicKey
+        let sigData = try keyPair.signDigest(messageDigest: message)
+        
+        let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey,
+                                                                     signature: AptosSignatureEd25519(sigData))
+        return AptosSignedTransaction(transaction: self, authenticator: .Ed25519(authenticator))
     }
 }
 
-extension AptosTransaction: BorshCodable {
+extension AptosRawTransaction: BorshCodable {
     public func serialize(to writer: inout Data) throws {
         try sender.serialize(to: &writer)
         try sequenceNumber.serialize(to: &writer)
@@ -72,10 +73,10 @@ extension AptosTransaction: BorshCodable {
 }
 
 public struct AptosSignedTransaction {
-    public let transaction: AptosTransaction
+    public let transaction: AptosRawTransaction
     public let authenticator: AptosTransactionAuthenticator
     
-    public init(transaction: AptosTransaction, authenticator: AptosTransactionAuthenticator) {
+    public init(transaction: AptosRawTransaction, authenticator: AptosTransactionAuthenticator) {
         self.transaction = transaction
         self.authenticator = authenticator
     }
