@@ -77,7 +77,7 @@ extension String: BorshDeserializable {
 
 extension Array: BorshDeserializable where Element: BorshDeserializable {
     public init(from reader: inout BinaryReader) throws {
-        let count: UInt32 = try .init(from: &reader)
+        let count: UInt32 = try UVarInt.init(from: &reader).value
         self = try Array<UInt32>(0..<count).map {_ in try Element.init(from: &reader) }
     }
 }
@@ -90,7 +90,7 @@ extension Set: BorshDeserializable where Element: BorshDeserializable & Equatabl
 
 extension Dictionary: BorshDeserializable where Key: BorshDeserializable & Equatable, Value: BorshDeserializable {
     public init(from reader: inout BinaryReader) throws {
-        let count: UInt32 = try .init(from: &reader)
+        let count: UInt32 = try UVarInt.init(from: &reader).value
         let keyValuePairs = try Array<UInt32>(0..<count).map {_ in (try Key.init(from: &reader), try Value.init(from: &reader)) }
         self = Dictionary(uniqueKeysWithValues: keyValuePairs)
     }

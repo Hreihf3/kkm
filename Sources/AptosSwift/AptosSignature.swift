@@ -33,14 +33,14 @@ extension AptosSignatureEd25519: BorshCodable {
 
 
 public struct AptosMultiEd25519Signature {
-    public static let BITMAP_LEN: UInt8 = 4
+    public static let BITMAP_LEN: Int = 4
     
     public let signatures: [AptosSignatureEd25519]
     public let bitmap: Data
     
     public init(signatures: [AptosSignatureEd25519], bitmap: Data) throws {
         guard bitmap.count == Self.BITMAP_LEN else {
-            throw AptosError.keyError("Signature length is \(Self.BITMAP_LEN) bytes.")
+            throw AptosError.keyError("Bitmap length is \(Self.BITMAP_LEN) bytes.")
         }
         
         self.signatures = signatures
@@ -50,11 +50,27 @@ public struct AptosMultiEd25519Signature {
 
 extension AptosMultiEd25519Signature: BorshCodable {
     public func serialize(to writer: inout Data) throws {
-//        try VarData(data).serialize(to: &writer)
+        var data = Data()
+        for sig in signatures {
+            data.append(sig.data)
+        }
+        data.append(bitmap)
+        
+        try VarData(data).serialize(to: &writer)
     }
     
     public init(from reader: inout BinaryReader) throws {
-        self.signatures = []
-        self.bitmap = Data()
+        let data = try VarData.init(from: &reader).data
+        
+        var sigs: [AptosSignatureEd25519] = []
+        let count = (data.count - Self.BITMAP_LEN) / AptosSignatureEd25519.SIZE
+        for i in 0..<count {
+            let start = i * AptosSignatureEd25519.SIZE
+            let end = (i + 1) * AptosSignatureEd25519.SIZE
+            sigs.append(try AptosSignatureEd25519(data.subdata(in: start..<end)))
+        }
+        
+        self.signatures = sigs
+        self.bitmap = data.subdata(in: (data.count - Self.BITMAP_LEN)..<data.count)
     }
 }

@@ -17,9 +17,9 @@ public struct AptosAddress {
     
     public init(_ data: Data) throws {
         guard data.count <= AptosAddress.SIZE else {
-            throw AptosError.keyError("Hex string is too long. Address's length is \(AptosAddress.SIZE) bytes.")
+            throw AptosError.keyError("Hex string is too long. Address's length is \(Self.SIZE) bytes.")
         }
-        self.data = Data(repeating: 0, count: AptosAddress.SIZE - data.count) + data
+        self.data = Data(repeating: 0, count: Self.SIZE - data.count) + data
     }
     
     public init(_ address: String) throws {
@@ -29,10 +29,10 @@ public struct AptosAddress {
 
 extension AptosAddress: BorshCodable {
     public func serialize(to writer: inout Data) throws {
-        writer.append(data.bytes, count: AptosAddress.SIZE)
+        writer.append(data.bytes, count: Self.SIZE)
     }
     
     public init(from reader: inout BinaryReader) throws {
-        self.data = Data(reader.read(count: UInt32(AptosAddress.SIZE)))
+        self.data = Data(reader.read(count: UInt32(Self.SIZE)))
     }
 }

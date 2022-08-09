@@ -22,6 +22,9 @@ final class AptosSwiftTests: XCTestCase {
         
         XCTAssertEqual(try BorshDecoder().decode(VarData.self, from: Data(hex: "03020304")).data, Data(hex: "020304"))
         XCTAssertEqual(try BorshEncoder().encode(VarData(Data(hex: "020304"))).toHexString(), "03020304")
+        
+        debugPrint(try BorshDecoder().decode(Bool.self, from: Data(hex: "00")))
+        debugPrint(try BorshEncoder().encode(true).toHexString())
     }
     
     func testProviderExamples() throws {

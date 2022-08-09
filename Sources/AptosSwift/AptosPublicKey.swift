@@ -13,8 +13,8 @@ public struct AptosPublicKeyEd25519 {
     public let data: Data
     
     public init(_ data: Data) throws {
-        guard data.count == AptosPublicKeyEd25519.SIZE else {
-            throw AptosError.keyError("Public key length is \(AptosPublicKeyEd25519.SIZE) bytes.")
+        guard data.count == Self.SIZE else {
+            throw AptosError.keyError("Public key length is \(Self.SIZE) bytes.")
         }
         
         self.data = data
@@ -65,8 +65,9 @@ extension AptosMultiEd25519PublicKey: BorshCodable {
         var pubKeys: [AptosPublicKeyEd25519] = []
         let count = (data.count - 1) / AptosPublicKeyEd25519.SIZE
         for i in 0..<count {
-            let start = i * 32
-            pubKeys.append(try AptosPublicKeyEd25519(data.subdata(in: start..<(start + 32))))
+            let start = i * AptosPublicKeyEd25519.SIZE
+            let end = (i + 1) * AptosPublicKeyEd25519.SIZE
+            pubKeys.append(try AptosPublicKeyEd25519(data.subdata(in: start..<end)))
         }
         
         self.publicKeys = pubKeys

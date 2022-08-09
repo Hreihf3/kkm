@@ -8,16 +8,14 @@
 import Foundation
 
 public enum AptosError: LocalizedError {
-    case unknown
     case decodingError
     case serializeError
     case providerError(String)
     case keyError(String)
+    case otherEror(String)
     
     public var errorDescription: String? {
         switch self {
-        case .unknown:
-            return "Unknown error"
         case .decodingError:
             return "Decoding error"
         case .serializeError:
@@ -25,6 +23,8 @@ public enum AptosError: LocalizedError {
         case .providerError(let message):
             return message
         case .keyError(let message):
+            return message
+        case .otherEror(let message):
             return message
         }
     }
