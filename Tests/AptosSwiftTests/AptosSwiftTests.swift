@@ -14,7 +14,6 @@ final class AptosSwiftTests: XCTestCase {
         
         let keypair3 = try AptosKeyPairEd25519(privateKeyData: Data(hex: "105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
         XCTAssertEqual(keypair3.address.address, "0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
-        print(AptosPublicKeyEd25519(keypair3.publicKeyData).data.description)
     }
     
     func testDecoderAndEncoderExamples() throws {
