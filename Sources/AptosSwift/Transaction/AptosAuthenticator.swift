@@ -117,6 +117,12 @@ extension AptosTransactionAuthenticator: BorshCodable {
     }
 }
 
+extension AptosTransactionAuthenticator:HumanReadable {
+    public func toHuman() -> Any? {
+        return []
+    }
+}
+
 public struct AptosTransactionAuthenticatorEd25519: BorshCodable {
     public let publicKey: AptosPublicKeyEd25519
     public let signature: AptosSignatureEd25519
@@ -134,6 +140,16 @@ public struct AptosTransactionAuthenticatorEd25519: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         self.publicKey = try .init(from: &reader)
         self.signature = try .init(from: &reader)
+    }
+}
+
+extension AptosTransactionAuthenticatorEd25519:HumanReadable {
+    public func toHuman() -> Any? {
+        return [
+            "type":"ed25519_signature",
+            "public_key": publicKey.hex,
+            "signature": signature.hex
+        ]
     }
 }
 

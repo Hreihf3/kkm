@@ -92,3 +92,20 @@ extension AptosScriptFunction {
         try args.map({VarData($0)}).serialize(to: &writer)
     }
 }
+
+extension AptosScriptFunction:HumanReadable {
+    public func toHuman() -> Any? {
+        let argAddress = try? AptosAddress(args.first ?? Data())
+        var amountbinary = BinaryReader(bytes: args[1].bytes)
+        let amount = try? UInt64(from: &amountbinary)
+        return [
+                "arguments": [
+                    argAddress?.address ?? "",
+                    String(amount ?? 0) 
+                ],
+                "function": "\(moduleName.toHuman() ?? "")::\(functionName.value)",
+                "type": "script_function_payload",
+                "type_arguments": typeArgs.map{ $0.toHuman() ?? ""}
+        ]
+    }
+}

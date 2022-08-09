@@ -59,6 +59,17 @@ extension AptosTypeTag: BorshCodable {
         }
     }
 }
+ 
+extension AptosTypeTag:HumanReadable {
+    public func toHuman() -> Any? {
+        switch self {
+        case .Struct(let aptosStructTag):
+            return aptosStructTag.toHuman()
+        default:
+            return nil
+        }
+    }
+}
 
 public struct AptosStructTag: BorshCodable {
     public let address: AptosAddress
@@ -101,5 +112,11 @@ public struct AptosStructTag: BorshCodable {
         try moduleName.serialize(to: &writer)
         try name.serialize(to: &writer)
         try typeArgs.serialize(to: &writer)
+    }
+}
+
+extension AptosStructTag:HumanReadable {
+    public func toHuman() -> Any? {
+        return "\(address.address)::\(moduleName.value)::\(name.value)"
     }
 }

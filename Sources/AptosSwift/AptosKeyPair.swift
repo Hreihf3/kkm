@@ -63,9 +63,8 @@ public struct AptosKeyPairEd25519 {
 // MARK: - Sign & Verify
 
 extension AptosKeyPairEd25519 {
-    public func sign(message: Data) throws -> AptosSignatureEd25519 {
-         let signature = try NaclSign.signDetached(message: message, secretKey: secretKey)
-        return try AptosSignatureEd25519(signature)
+    public func sign(message: Data) throws -> Data {
+         return try NaclSign.signDetached(message: message, secretKey: secretKey)
     }
     
     public func signVerify(message: Data, signature: Data) -> Bool {

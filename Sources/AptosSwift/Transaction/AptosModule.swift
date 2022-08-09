@@ -69,3 +69,9 @@ public struct AptosModuleId: BorshCodable {
         try name.serialize(to: &writer)
     }
 }
+
+extension AptosModuleId:HumanReadable {
+    public func toHuman() -> Any? {
+        return "\(address.address)::\(name.value)"
+    }
+}

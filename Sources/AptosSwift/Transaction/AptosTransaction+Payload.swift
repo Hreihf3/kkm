@@ -47,6 +47,17 @@ extension AptosTransactionPayload: BorshCodable {
     }
 }
 
+extension AptosTransactionPayload:HumanReadable {
+    public func toHuman() -> Any? {
+        switch self {
+        case .ScriptFunction(let aptosTransactionPayloadScriptFunction):
+            return aptosTransactionPayloadScriptFunction.toHuman()
+        default :
+            return nil
+        }
+    }
+}
+
 public struct AptosTransactionPayloadWriteSet: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         throw AptosError.decodingError
@@ -102,5 +113,11 @@ public struct AptosTransactionPayloadScriptFunction: BorshCodable {
     
     public func serialize(to writer: inout Data) throws {
         try self.value.serialize(to: &writer)
+    }
+}
+
+extension AptosTransactionPayloadScriptFunction:HumanReadable {
+    public func toHuman() -> Any? {
+        return self.value.toHuman()
     }
 }

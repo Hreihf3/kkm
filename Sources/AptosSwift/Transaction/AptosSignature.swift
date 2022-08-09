@@ -12,6 +12,10 @@ public struct AptosSignatureEd25519 {
     
     public let data: Data
     
+    public var hex: String {
+        return data.toHexString().addHexPrefix()
+    }
+    
     public init(_ data: Data) throws {
         guard data.count == AptosSignatureEd25519.SIZE else {
             throw AptosError.keyError("Signature length is \(AptosSignatureEd25519.SIZE) bytes.")

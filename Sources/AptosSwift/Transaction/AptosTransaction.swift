@@ -42,7 +42,7 @@ public struct AptosRawTransaction {
         try self.serialize(to: &message)
         
         let publicKey = keyPair.publicKey
-        let sigData = try keyPair.signDigest(messageDigest: message)
+        let sigData = try keyPair.sign(message: message)
         
         let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey,
                                                                      signature: AptosSignatureEd25519(sigData))
@@ -72,6 +72,20 @@ extension AptosRawTransaction: BorshCodable {
     }
 }
 
+extension AptosRawTransaction: HumanReadable {
+    public func toHuman() -> Any? {
+        return [
+            "sender":sender.address,
+            "sequence_number":String(sequenceNumber),
+            "max_gas_amount":String(maxGasAmount),
+            "gas_unit_price":String(gasUnitPrice),
+            "gas_currency_code": "XUS",
+            "expiration_timestamp_secs":String(expirationTimestampSecs),
+            "payload": payload.toHuman() as! [String:Any]
+        ]
+    }
+}
+
 public struct AptosSignedTransaction {
     public let transaction: AptosRawTransaction
     public let authenticator: AptosTransactionAuthenticator
@@ -91,5 +105,13 @@ extension AptosSignedTransaction: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         self.transaction = try .init(from: &reader)
         self.authenticator = try .init(from: &reader)
+    }
+}
+
+extension AptosSignedTransaction:HumanReadable {
+    public func toHuman() -> Any? {
+        var human: [String: Any] = transaction.toHuman() as! [String : Any]
+        human["signature"] =  authenticator.toHuman() ?? []
+        return human
     }
 }

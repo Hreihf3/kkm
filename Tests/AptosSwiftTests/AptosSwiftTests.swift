@@ -75,8 +75,8 @@ final class AptosSwiftTests: XCTestCase {
         let function = try AptosScriptFunction.natural(module: "0x1::coin", func: "transfer", typeArgs: [AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))], args: [AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6").data,amountdata])
         
         let payloadscriptfunction = AptosTransactionPayloadScriptFunction(value: function)
-        let transaction = AptosTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 0, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: 1659665022, chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
-        print(transaction.signMessage().toHexString())
-        XCTAssertEqual(transaction.signMessage().toHexString(), "b5e97db07fa0bd0e5598aa3643a9bc6f6693bddc1a9fec9e674a461eaa00b193689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5000000000000000003000000000000000000000000000000000000000000000000000000000000000104636f696e087472616e73666572010700000000000000000000000000000000000000000000000000000000000000010a6170746f735f636f696e094170746f73436f696e000220de1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b608e803000000000000e80300000000000001000000000000007e7aec620000000016")
+        let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 0, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: 1659665022, chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
+        print(transaction.toHuman() as? [String:Any])
+        print("end")
     }
 }
