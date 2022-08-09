@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import CryptoSwift
+
+public let RAW_TRANSACTION_SALT = "APTOS::RawTransaction"
 
 public struct AptosTransaction {
     public let sender: AptosAddress
@@ -31,6 +34,19 @@ public struct AptosTransaction {
         self.chainId = chainId
         self.payload = payload
     }
+    
+    public func signMessage() -> Data {
+        let prefix = RAW_TRANSACTION_SALT.data(using: .utf8)!.sha3(.sha256)
+        let transactionData = try! BorshEncoder().encode(self)
+        print(prefix.toHexString())
+        return Data(prefix.bytes+transactionData.bytes)
+    }
+    
+    public func sign(_ keypair: AptosKeyPairEd25519) throws -> AptosSignedTransaction {
+        let message = self.signMessage()
+        let signature = try keypair.sign(message: message)
+        return AptosSignedTransaction(transaction: self, authenticator: AptosTransactionAuthenticator.Ed25519(AptosTransactionAuthenticatorEd25519(publicKey: try AptosPublicKeyEd25519(keypair.publicKeyData), signature: signature)))
+    }
 }
 
 extension AptosTransaction: BorshCodable {
@@ -38,6 +54,7 @@ extension AptosTransaction: BorshCodable {
         try sender.serialize(to: &writer)
         try sequenceNumber.serialize(to: &writer)
         try payload.serialize(to: &writer)
+        try maxGasAmount.serialize(to: &writer)
         try gasUnitPrice.serialize(to: &writer)
         try expirationTimestampSecs.serialize(to: &writer)
         try chainId.serialize(to: &writer)
