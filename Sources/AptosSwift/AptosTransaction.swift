@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AptosTransaction {
+public struct AptosRawTransaction {
     public let sender: AptosAddress
     public let sequenceNumber: UInt64
     public let maxGasAmount: UInt64
@@ -31,13 +31,28 @@ public struct AptosTransaction {
         self.chainId = chainId
         self.payload = payload
     }
+    
+    public func sign(_ keyPair: AptosKeyPairEd25519) throws -> AptosSignedTransaction {
+        var message = Data()
+        message.append("APTOS::RawTransaction".data(using: .utf8)!.sha3(.sha256))
+        
+        try self.serialize(to: &message)
+        
+        let publicKey = keyPair.publicKey
+        let sigData = try keyPair.signDigest(messageDigest: message)
+        
+        let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey,
+                                                                     signature: AptosSignatureEd25519(sigData))
+        return AptosSignedTransaction(transaction: self, authenticator: .Ed25519(authenticator))
+    }
 }
 
-extension AptosTransaction: BorshCodable {
+extension AptosRawTransaction: BorshCodable {
     public func serialize(to writer: inout Data) throws {
         try sender.serialize(to: &writer)
         try sequenceNumber.serialize(to: &writer)
         try payload.serialize(to: &writer)
+        try maxGasAmount.serialize(to: &writer)
         try gasUnitPrice.serialize(to: &writer)
         try expirationTimestampSecs.serialize(to: &writer)
         try chainId.serialize(to: &writer)
@@ -55,10 +70,10 @@ extension AptosTransaction: BorshCodable {
 }
 
 public struct AptosSignedTransaction {
-    public let transaction: AptosTransaction
+    public let transaction: AptosRawTransaction
     public let authenticator: AptosTransactionAuthenticator
     
-    public init(transaction: AptosTransaction, authenticator: AptosTransactionAuthenticator) {
+    public init(transaction: AptosRawTransaction, authenticator: AptosTransactionAuthenticator) {
         self.transaction = transaction
         self.authenticator = authenticator
     }

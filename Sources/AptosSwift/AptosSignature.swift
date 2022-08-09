@@ -13,7 +13,7 @@ public struct AptosSignatureEd25519 {
     public let data: Data
     
     public init(_ data: Data) throws {
-        guard data.count == AptosPublicKeyEd25519.SIZE else {
+        guard data.count == AptosSignatureEd25519.SIZE else {
             throw AptosError.keyError("Signature length is \(AptosSignatureEd25519.SIZE) bytes.")
         }
         

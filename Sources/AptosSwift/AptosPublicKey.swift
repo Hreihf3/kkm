@@ -11,13 +11,21 @@ public struct AptosPublicKeyEd25519 {
     public static let SIZE: Int = 32
     
     public let data: Data
-    
+    public var hex: String {
+        return data.toHexString().addHexPrefix()
+    }
     public init(_ data: Data) throws {
         guard data.count == Self.SIZE else {
             throw AptosError.keyError("Public key length is \(Self.SIZE) bytes.")
         }
         
         self.data = data
+    }
+}
+
+extension AptosPublicKeyEd25519: Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.data == rhs.data
     }
 }
 
