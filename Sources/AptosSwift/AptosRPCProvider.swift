@@ -35,7 +35,7 @@ public struct AptosRPCProvider {
     }
     
     public func getAccountResource(address:String,resourceType:String) -> Promise<AccountResource> {
-        return self.GET(url: "\(nodeUrl)/accounts/\(address)/resource\(resourceType)")
+        return self.GET(url: "\(nodeUrl)/accounts/\(address)/resource/\(resourceType)")
     }
 }
 
@@ -46,8 +46,9 @@ extension AptosRPCProvider {
        var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.get")
        queue.async {
-           let url = URL(string: url)
-           var urlRequest = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
+           let encodeUrlString = url.addingPercentEncoding(withAllowedCharacters:
+                       .urlQueryAllowed)
+           var urlRequest = URLRequest(url: URL(string: encodeUrlString ?? "")!, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
            urlRequest.httpMethod = "GET"
            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
            urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")

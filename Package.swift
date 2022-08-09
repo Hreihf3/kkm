@@ -28,8 +28,8 @@ let package = Package(
         .target(
             name: "AptosSwift",
             dependencies: ["PromiseKit","CryptoSwift","TweetNacl","BIP39swift"]),
-//        .testTarget(
-//            name: "AptosSwiftTests",
-//            dependencies: ["AptosSwift"]),
+        .testTarget(
+            name: "AptosSwiftTests",
+            dependencies: ["AptosSwift"]),
     ]
 )
