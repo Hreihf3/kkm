@@ -19,7 +19,7 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/mxcl/PromiseKit.git", from: "6.8.4"),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.4.1"),
-        .package(name:"TweetNacl",url: "https://github.com/lishuailibertine/tweetnacl-swiftwrap", from: "1.0.5"),
+        .package(url: "https://github.com/lishuailibertine/tweetnacl-swiftwrap", from: "1.0.5"),
         .package(url: "https://github.com/mathwallet/BIP39swift", from: "1.0.1")
     ],
     targets: [
@@ -27,7 +27,13 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AptosSwift",
-            dependencies: ["PromiseKit","CryptoSwift","TweetNacl","BIP39swift"]),
+            dependencies: [
+                "PromiseKit",
+                "CryptoSwift",
+                .product(name: "TweetNacl", package: "tweetnacl-swiftwrap"),
+                "BIP39swift"
+            ]
+        ),
         .testTarget(
             name: "AptosSwiftTests",
             dependencies: ["AptosSwift"]),
