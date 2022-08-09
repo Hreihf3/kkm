@@ -23,12 +23,12 @@ public struct AptosKeyPairEd25519 {
         return secretKey[32..<64]
     }
     
-    public var privateKey: String {
+    public var privateKeyHex: String {
         return self.privateKeyData.toHexString().addHexPrefix()
     }
     
-    public var publicKey: String {
-        return self.publicKeyData.toHexString().addHexPrefix()
+    public var publicKey: AptosPublicKeyEd25519 {
+        return try! AptosPublicKeyEd25519(self.publicKeyData)
     }
     
     public init(privateKeyData: Data) throws {
