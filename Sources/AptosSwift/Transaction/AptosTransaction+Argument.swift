@@ -52,7 +52,7 @@ extension AptosTransactionArgument: BorshCodable {
         case 3: self = .Address(try AptosTransactionArgumentAddress(from: &reader))
         case 4: self = .Data(try AptosTransactionArgumentData(from: &reader))
         case 5: self = .Bool(try AptosTransactionArgumentBool(from: &reader))
-        default: throw AptosError.decodingError
+        default: throw AptosError.otherEror("Unknown variant index for TransactionArgument: \(index)")
         }
     }
 }

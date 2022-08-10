@@ -55,7 +55,7 @@ extension AptosTypeTag: BorshCodable {
         case 5: self = .Signer
         case 6: self = .Data
         case 7: self = .Struct(try AptosStructTag.init(from: &reader))
-        default: throw AptosError.decodingError
+        default: throw AptosError.otherEror("Unknown variant index for TypeTag: \(index)")
         }
     }
 }

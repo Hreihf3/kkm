@@ -42,7 +42,7 @@ extension AptosTransactionPayload: BorshCodable {
         case 1: self = .Script(try AptosTransactionPayloadScript(from: &reader))
         case 2: self = .ModuleBundle(try AptosTransactionPayloadModuleBundle(from: &reader))
         case 3: self = .ScriptFunction(try AptosTransactionPayloadScriptFunction(from: &reader))
-        default: throw AptosError.decodingError
+        default: throw AptosError.otherEror("Unknown variant index for TransactionPayload: \(index)")
         }
     }
 }
