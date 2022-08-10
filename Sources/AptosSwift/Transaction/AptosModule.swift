@@ -43,6 +43,8 @@ public struct AptosModuleId: BorshCodable {
     public let address: AptosAddress
     public let name: AptosIdentifier
     
+    private let rawValue: String
+    
     /// Converts a string literal to a ModuleId
     /// - Parameter moduleId: String literal in format "AccountAddress::module_name", e.g. "0x1::coin"
     /// - Returns: Aptos ModuleId
@@ -51,17 +53,19 @@ public struct AptosModuleId: BorshCodable {
         guard parts.count == 2 else {
             throw AptosError.otherEror("Invalid module id.")
         }
-        return AptosModuleId(address: try AptosAddress(parts[0]), name: AptosIdentifier(parts[1]))
+        return AptosModuleId(address: try AptosAddress(parts[0]), name: AptosIdentifier(parts[1]), rawValue: moduleId)
     }
     
-    public init(address: AptosAddress, name: AptosIdentifier) {
+    public init(address: AptosAddress, name: AptosIdentifier, rawValue:String) {
         self.address = address
         self.name = name
+        self.rawValue = rawValue
     }
     
     public init(from reader: inout BinaryReader) throws {
         self.address = try .init(from: &reader)
         self.name = try .init(from: &reader)
+        self.rawValue = "\(address.address)::\(name.value)"
     }
     
     public func serialize(to writer: inout Data) throws {
@@ -72,6 +76,6 @@ public struct AptosModuleId: BorshCodable {
 
 extension AptosModuleId:HumanReadable {
     public func toHuman() -> Any? {
-        return "\(address.address)::\(name.value)"
+        return rawValue
     }
 }

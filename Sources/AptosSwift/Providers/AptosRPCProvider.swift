@@ -26,22 +26,22 @@ public struct AptosRPCProvider {
         return self.GET(url: nodeUrl)
     }
     
-    public func getAccount(address:AptosAddress) -> Promise<[AccountResult]> {
+    public func getAccount(address: AptosAddress) -> Promise<[AccountResult]> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)")
     }
     
-    public func getAccountResources(address:AptosAddress) -> Promise<[AccountResource]> {
+    public func getAccountResources(address: AptosAddress) -> Promise<[AccountResource]> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)/resources")
     }
     
-    public func getAccountResource(address:AptosAddress,resourceType:String) -> Promise<AccountResource> {
+    public func getAccountResource(address: AptosAddress, resourceType: String) -> Promise<AccountResource> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)/resource/\(resourceType)")
     }
 }
 
 extension AptosRPCProvider {
     
-    public func GET<T: Codable>(url:String) -> Promise<T> {
+    public func GET<T: Codable>(url: String) -> Promise<T> {
        let rp = Promise<Data>.pending()
        var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.get")
@@ -78,7 +78,7 @@ extension AptosRPCProvider {
            }
    }
     
-    public func POST<T: Decodable>(url:String,parameters:Encodable) -> Promise<T> {
+    public func POST<T: Decodable>(url: String, parameters: Encodable) -> Promise<T> {
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.post")

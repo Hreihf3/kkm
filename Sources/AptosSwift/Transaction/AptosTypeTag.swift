@@ -77,11 +77,14 @@ public struct AptosStructTag: BorshCodable {
     public let name: AptosIdentifier
     public let typeArgs: [AptosTypeTag]
     
-    public init(address: AptosAddress, moduleName: AptosIdentifier, name: AptosIdentifier, typeArgs: [AptosTypeTag]) {
+    private let rawValue:String
+    
+    public init(address: AptosAddress, moduleName: AptosIdentifier, name: AptosIdentifier, typeArgs: [AptosTypeTag], rawValue:String) {
         self.address = address
         self.moduleName = moduleName
         self.name = name
         self.typeArgs = typeArgs
+        self.rawValue = rawValue
     }
     
     /// Converts a string literal to a StructTag
@@ -97,7 +100,7 @@ public struct AptosStructTag: BorshCodable {
         guard parts.count == 3 else {
             throw AptosError.otherEror("Invalid struct tag string literal.")
         }
-        return AptosStructTag(address: try AptosAddress(parts[0]), moduleName: AptosIdentifier(parts[1]), name: AptosIdentifier(parts[2]), typeArgs: [])
+        return AptosStructTag(address: try AptosAddress(parts[0]), moduleName: AptosIdentifier(parts[1]), name: AptosIdentifier(parts[2]), typeArgs: [], rawValue: structTag)
     }
     
     public init(from reader: inout BinaryReader) throws {
@@ -105,6 +108,7 @@ public struct AptosStructTag: BorshCodable {
         self.moduleName = try .init(from: &reader)
         self.name = try .init(from: &reader)
         self.typeArgs = try .init(from: &reader)
+        self.rawValue = "\(address.address)::\(moduleName.value)::\(name.value)"
     }
     
     public func serialize(to writer: inout Data) throws {
@@ -117,6 +121,6 @@ public struct AptosStructTag: BorshCodable {
 
 extension AptosStructTag:HumanReadable {
     public func toHuman() -> Any? {
-        return "\(address.address)::\(moduleName.value)::\(name.value)"
+        return rawValue
     }
 }
