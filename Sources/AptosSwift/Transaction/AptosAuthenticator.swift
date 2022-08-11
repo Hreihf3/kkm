@@ -119,7 +119,12 @@ extension AptosTransactionAuthenticator: BorshCodable {
 
 extension AptosTransactionAuthenticator:HumanReadable {
     public func toHuman() -> Any {
-        return []
+        switch self {
+        case .Ed25519(let aptosTransactionAuthenticatorEd25519):
+            return aptosTransactionAuthenticatorEd25519.toHuman()
+        default:
+            return []
+        }
     }
 }
 

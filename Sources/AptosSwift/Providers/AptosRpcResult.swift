@@ -49,3 +49,29 @@ public struct AccountResourceData: Codable {
         }
     }
 }
+
+// transaction
+public struct TransactionResult: Codable {
+    public let type: String
+    public let hash: String
+    public let sender: String
+    public let sequenceNumber: String
+    public let maxGasAmount: String
+    public let gasUnitPrice: String
+    public let expirationTimestampSecs: String
+    public let payload: PayloadResult
+    public let signature: SignatureResult
+}
+
+public struct PayloadResult: Codable {
+    public let type: String
+    public let function: String
+    public let typeArguments: [String]
+    public let arguments: [String]
+}
+
+public struct SignatureResult: Codable {
+    public let type: String
+    public let publicKey: String
+    public let signature: String
+}
