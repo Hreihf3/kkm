@@ -26,7 +26,7 @@ public struct AptosRPCProvider {
         return self.GET(url: nodeUrl)
     }
     
-    public func getAccount(address: AptosAddress) -> Promise<[AccountResult]> {
+    public func getAccount(address: AptosAddress) -> Promise<AccountResult> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)")
     }
     
