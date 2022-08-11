@@ -79,7 +79,6 @@ extension AptosRawTransaction: HumanReadable {
             "sequence_number": String(sequenceNumber),
             "max_gas_amount": String(maxGasAmount),
             "gas_unit_price": String(gasUnitPrice),
-            "gas_currency_code": "XUS",
             "expiration_timestamp_secs": String(expirationTimestampSecs),
             "payload": payload.toHuman()
         ]
