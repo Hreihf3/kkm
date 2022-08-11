@@ -67,6 +67,10 @@ final class AptosSwiftTests: XCTestCase {
                                             chainId: 4,
                                             payload: .Script(payload))
         let signedTx = try rawTx.sign(keyPair)
+        
+        let jsondata = try JSONSerialization.data(withJSONObject: signedTx.toHuman())
+        print(String(data: jsondata, encoding:.utf8)!)
+        
         XCTAssertEqual(try BorshEncoder().encode(signedTx), Data(hex: "000000000000000000000000000000000000000000000000000000000a550c1800000000000000000126a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102010700000000000000000000000000000000000000000000000000000000000000010a6170746f735f636f696e094170746f73436f696e00010002d0070000000000000000000000000000ffffffffffffffff040020b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a4920040662b626455b62ca41ef35b34c74ef0b848c5b3679ae3cf32af47d10ef3372ed4060cfaaeee6ab71ab0034951c21e589d70512c8c536625f532ebf9f127867209"))
     }
     
@@ -96,7 +100,7 @@ final class AptosSwiftTests: XCTestCase {
         
         let payloadscriptfunction = AptosTransactionPayloadScriptFunction(value: function)
         let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 0, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: 1659665022, chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
-        print(transaction.toHuman() as? [String:Any])
+        print(transaction.toHuman())
         print("end")
     }
 }

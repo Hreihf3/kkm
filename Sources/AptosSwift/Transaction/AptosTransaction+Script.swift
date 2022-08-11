@@ -94,7 +94,7 @@ extension AptosScriptFunction {
 }
 
 extension AptosScriptFunction:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         let argAddress = try? AptosAddress(args.first ?? Data())
         var amountbinary = BinaryReader(bytes: args[1].bytes)
         let amount = try? UInt64(from: &amountbinary)
@@ -103,9 +103,9 @@ extension AptosScriptFunction:HumanReadable {
                     argAddress?.address ?? "",
                     String(amount ?? 0) 
                 ],
-                "function": "\(moduleName.toHuman() ?? "")::\(functionName.value)",
+                "function": "\(moduleName.toHuman())::\(functionName.value)",
                 "type": "script_function_payload",
-                "type_arguments": typeArgs.map{ $0.toHuman() ?? ""}
+                "type_arguments": typeArgs.map{ $0.toHuman()}
         ]
     }
 }

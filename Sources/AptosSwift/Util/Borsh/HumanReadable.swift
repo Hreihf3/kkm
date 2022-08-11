@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol HumanReadable {
-    func toHuman() -> Any?
+    func toHuman() -> Any
 }

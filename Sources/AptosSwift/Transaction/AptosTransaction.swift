@@ -73,7 +73,7 @@ extension AptosRawTransaction: BorshCodable {
 }
 
 extension AptosRawTransaction: HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         return [
             "sender": sender.address,
             "sequence_number": String(sequenceNumber),
@@ -81,7 +81,7 @@ extension AptosRawTransaction: HumanReadable {
             "gas_unit_price": String(gasUnitPrice),
             "gas_currency_code": "XUS",
             "expiration_timestamp_secs": String(expirationTimestampSecs),
-            "payload": payload.toHuman() as! [String:Any]
+            "payload": payload.toHuman()
         ]
     }
 }
@@ -109,9 +109,9 @@ extension AptosSignedTransaction: BorshCodable {
 }
 
 extension AptosSignedTransaction:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         var human: [String: Any] = transaction.toHuman() as! [String : Any]
-        human["signature"] =  authenticator.toHuman() ?? [String:Any]()
+        human["signature"] =  authenticator.toHuman()
         return human
     }
 }

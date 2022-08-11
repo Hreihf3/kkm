@@ -61,12 +61,12 @@ extension AptosTypeTag: BorshCodable {
 }
  
 extension AptosTypeTag:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         switch self {
         case .Struct(let aptosStructTag):
             return aptosStructTag.toHuman()
         default:
-            return nil
+            return ""
         }
     }
 }
@@ -120,7 +120,7 @@ public struct AptosStructTag: BorshCodable {
 }
 
 extension AptosStructTag:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         return rawValue
     }
 }

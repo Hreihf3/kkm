@@ -118,7 +118,7 @@ extension AptosTransactionAuthenticator: BorshCodable {
 }
 
 extension AptosTransactionAuthenticator:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         return []
     }
 }
@@ -144,7 +144,7 @@ public struct AptosTransactionAuthenticatorEd25519: BorshCodable {
 }
 
 extension AptosTransactionAuthenticatorEd25519:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         return [
             "type":"ed25519_signature",
             "public_key": publicKey.hex,

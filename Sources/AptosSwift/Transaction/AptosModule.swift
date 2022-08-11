@@ -75,7 +75,7 @@ public struct AptosModuleId: BorshCodable {
 }
 
 extension AptosModuleId:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         return rawValue
     }
 }

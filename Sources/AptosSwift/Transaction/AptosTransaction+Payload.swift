@@ -48,12 +48,12 @@ extension AptosTransactionPayload: BorshCodable {
 }
 
 extension AptosTransactionPayload:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         switch self {
         case .ScriptFunction(let aptosTransactionPayloadScriptFunction):
             return aptosTransactionPayloadScriptFunction.toHuman()
         default :
-            return nil
+            return [String: Any]()
         }
     }
 }
@@ -117,7 +117,7 @@ public struct AptosTransactionPayloadScriptFunction: BorshCodable {
 }
 
 extension AptosTransactionPayloadScriptFunction:HumanReadable {
-    public func toHuman() -> Any? {
+    public func toHuman() -> Any {
         return self.value.toHuman()
     }
 }
