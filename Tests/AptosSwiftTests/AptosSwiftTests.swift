@@ -106,7 +106,7 @@ final class AptosSwiftTests: XCTestCase {
                 let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 1, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: data, chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
                 let signedtransaction = try transaction.sign(keyPair)
                 let signeddata = try signedtransaction.toJSONData()
-                print(String(data: signeddata, encoding: .utf8))
+                print(String(data: signeddata, encoding: .utf8)!)
                 let result = try provider.submitTransaction(signedTransaction: signedtransaction).wait()
                 print(result.hash)
             } catch let error {

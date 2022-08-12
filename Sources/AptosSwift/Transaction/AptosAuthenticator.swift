@@ -166,7 +166,7 @@ extension AptosTransactionAuthenticator: Encodable {
         switch self {
         case .Ed25519(let aptosTransactionAuthenticatorEd25519):
             try aptosTransactionAuthenticatorEd25519.encode(to: encoder)
-        case .MultiEd25519(let aptosTransactionAuthenticatorMultiEd25519)
+        case .MultiEd25519(let aptosTransactionAuthenticatorMultiEd25519):
             try aptosTransactionAuthenticatorMultiEd25519.encode(to: encoder)
         default:
             throw AptosError.encodingError
