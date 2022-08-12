@@ -12,7 +12,7 @@ public struct AptosAddress {
     
     public var data: Data
     public var address: String {
-        return  self.data.toHexString().addHexPrefix()
+        return self.data.toHexString().addHexPrefix()
     }
     
     public init(_ data: Data) throws {

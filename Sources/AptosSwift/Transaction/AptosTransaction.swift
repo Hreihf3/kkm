@@ -97,7 +97,7 @@ extension AptosSignedTransaction: BorshCodable {
 extension AptosSignedTransaction: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(authenticator, forKey: .signature)
+        try container.encode(authenticator, forKey: .signature)
         try container.encode(transaction.sender.address, forKey: .sender)
         try container.encode(String(transaction.sequenceNumber), forKey: .sequenceNumber)
         try container.encode(String(transaction.maxGasAmount), forKey: .maxGasAmount)
