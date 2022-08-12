@@ -80,6 +80,9 @@ extension AptosRPCProvider {
                if let resp = try? decoder.decode(T.self, from: data) {
                    return resp
                }
+               if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+                   throw AptosError.providerError(errorResult.message)
+               }
                throw AptosError.providerError("Parameter error or received wrong message")
            }
    }
@@ -103,7 +106,7 @@ extension AptosRPCProvider {
                         return
                     }
                     guard data != nil else {
-                        rp.resolver.reject(AptosRpcProviderError.server(message: "Node response is empty"))
+                        rp.resolver.reject(AptosError.providerError("Node response is empty"))
                         return
                     }
                     rp.resolver.fulfill(data!)
@@ -121,6 +124,9 @@ extension AptosRPCProvider {
                 if let resp = try? decoder.decode(T.self, from: data) {
                     return resp
                 }
+                if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+                    throw AptosError.providerError(errorResult.message)
+                }
                 throw AptosError.providerError("Parameter error or received wrong message")
             }
     }
@@ -129,18 +135,5 @@ extension AptosRPCProvider {
 public extension Encodable {
     func toJSONData() throws -> Data {
         return try JSONEncoder().encode(self)
-    }
-}
-
-public enum AptosRpcProviderError: LocalizedError {
-    case unknown
-    case server(message: String)
-    public var errorDescription: String? {
-        switch self {
-        case .server(let message):
-            return message
-        default:
-            return "Unknown error"
-        }
     }
 }

@@ -48,6 +48,7 @@ final class AptosSwiftTests: XCTestCase {
                                             chainId: 4,
                                             payload: .ScriptFunction(payload))
         let signedTx = try rawTx.sign(keyPair)
+        
         XCTAssertEqual(try BorshEncoder().encode(signedTx), Data(hex: "000000000000000000000000000000000000000000000000000000000a550c18000000000000000003000000000000000000000000000000000000000000000000000000000000122204636f696e087472616e73666572010700000000000000000000000000000000000000000000000000000000000000010a6170746f735f636f696e094170746f73436f696e00022000000000000000000000000000000000000000000000000000000000000000dd080100000000000000d0070000000000000000000000000000ffffffffffffffff040020b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a4920040d7b32e9efbc640963782b11833159a3d62ba962c3f1e5580a9bab89ab012d99c38ed54ab8c0383a438a9a562b3b4b519bd31265130f2955f744125929ff23307"))
     }
     
@@ -102,7 +103,7 @@ final class AptosSwiftTests: XCTestCase {
                 let function = try AptosScriptFunction.natural(module: "0x1::coin", func: "transfer", typeArgs: [AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))], args: [AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6").data,amountdata])
                 let payloadscriptfunction = AptosTransactionPayloadScriptFunction(value: function)
                 let data = UInt64(Date().timeIntervalSince1970)+10
-                let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 0, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: data, chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
+                let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 1, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: data, chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
                 let signedtransaction = try transaction.sign(keyPair)
                 let signeddata = try signedtransaction.toJSONData()
                 print(String(data: signeddata, encoding: .utf8))

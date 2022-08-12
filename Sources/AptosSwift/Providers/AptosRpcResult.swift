@@ -75,3 +75,8 @@ public struct SignatureResult: Codable {
     public let publicKey: String
     public let signature: String
 }
+
+public struct RequestError: Codable {
+    public let code: Int
+    public let message: String
+}

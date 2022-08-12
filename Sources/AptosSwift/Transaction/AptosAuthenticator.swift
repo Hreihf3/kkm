@@ -192,7 +192,7 @@ public struct AptosTransactionAuthenticatorEd25519: BorshCodable {
     }
 }
 
-extension AptosTransactionAuthenticatorEd25519:Encodable {
+extension AptosTransactionAuthenticatorEd25519: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode("ed25519_signature", forKey: .type)
