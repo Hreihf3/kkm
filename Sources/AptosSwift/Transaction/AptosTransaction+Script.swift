@@ -100,7 +100,7 @@ extension AptosScriptFunction: Encodable {
         var amountbinary = BinaryReader(bytes: args[1].bytes)
         let amount = try? UInt64(from: &amountbinary)
         try container.encode([argAddress?.address ?? "",String(amount ?? 0) ], forKey: .arguments)
-        try container.encode("\(moduleName.rawValue)::\(functionName.value)", forKey: .function)
+        try container.encode("\(moduleName.value)::\(functionName.value)", forKey: .function)
         try container.encode("script_function_payload", forKey: .type)
         try container.encode(typeArgs.map{$0.toEncodable() as! String}, forKey: .typeArguments)
     }
