@@ -47,6 +47,17 @@ extension AptosTransactionPayload: BorshCodable {
     }
 }
 
+extension AptosTransactionPayload: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .ScriptFunction(let aptosTransactionPayloadScriptFunction):
+            try aptosTransactionPayloadScriptFunction.encode(to: encoder)
+        default :
+            throw AptosError.encodingError
+        }
+    }
+}
+
 public struct AptosTransactionPayloadWriteSet: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         throw AptosError.decodingError
@@ -102,5 +113,11 @@ public struct AptosTransactionPayloadScriptFunction: BorshCodable {
     
     public func serialize(to writer: inout Data) throws {
         try self.value.serialize(to: &writer)
+    }
+}
+
+extension AptosTransactionPayloadScriptFunction: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        try self.value.encode(to: encoder)
     }
 }

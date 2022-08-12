@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import CryptoSwift
+
+public let RAW_TRANSACTION_SALT = "APTOS::RawTransaction"
 
 public struct AptosRawTransaction {
     public let sender: AptosAddress
@@ -39,7 +42,7 @@ public struct AptosRawTransaction {
         try self.serialize(to: &message)
         
         let publicKey = keyPair.publicKey
-        let sigData = try keyPair.signDigest(messageDigest: message)
+        let sigData = try keyPair.sign(message: message)
         
         let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey,
                                                                      signature: AptosSignatureEd25519(sigData))
@@ -88,5 +91,28 @@ extension AptosSignedTransaction: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         self.transaction = try .init(from: &reader)
         self.authenticator = try .init(from: &reader)
+    }
+}
+
+extension AptosSignedTransaction: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(authenticator, forKey: .signature)
+        try container.encode(transaction.sender.address, forKey: .sender)
+        try container.encode(String(transaction.sequenceNumber), forKey: .sequenceNumber)
+        try container.encode(String(transaction.maxGasAmount), forKey: .maxGasAmount)
+        try container.encode(String(transaction.gasUnitPrice), forKey: .gasUnitPrice)
+        try container.encode(String(transaction.expirationTimestampSecs), forKey: .expirationTimestampSecs)
+        try container.encode(transaction.payload, forKey: .payload)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case sender = "sender"
+        case sequenceNumber = "sequence_number"
+        case maxGasAmount = "max_gas_amount"
+        case gasUnitPrice = "gas_unit_price"
+        case expirationTimestampSecs = "expiration_timestamp_secs"
+        case payload = "payload"
+        case signature = "signature"
     }
 }

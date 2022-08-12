@@ -26,22 +26,28 @@ public struct AptosRPCProvider {
         return self.GET(url: nodeUrl)
     }
     
-    public func getAccount(address:AptosAddress) -> Promise<[AccountResult]> {
+    public func getAccount(address: AptosAddress) -> Promise<AccountResult> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)")
     }
     
-    public func getAccountResources(address:AptosAddress) -> Promise<[AccountResource]> {
+    public func getAccountResources(address: AptosAddress) -> Promise<[AccountResource]> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)/resources")
     }
     
-    public func getAccountResource(address:AptosAddress,resourceType:String) -> Promise<AccountResource> {
+    public func getAccountResource(address: AptosAddress, resourceType: String) -> Promise<AccountResource> {
         return self.GET(url: "\(nodeUrl)/accounts/\(address.address)/resource/\(resourceType)")
     }
 }
 
 extension AptosRPCProvider {
+    public func submitTransaction(signedTransaction: AptosSignedTransaction) -> Promise<TransactionResult> {
+        return self.POST(url: "\(nodeUrl)/transactions", parameters: signedTransaction)
+    }
+}
+
+extension AptosRPCProvider {
     
-    public func GET<T: Codable>(url:String) -> Promise<T> {
+    public func GET<T: Codable>(url: String) -> Promise<T> {
        let rp = Promise<Data>.pending()
        var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.get")
@@ -74,17 +80,19 @@ extension AptosRPCProvider {
                if let resp = try? decoder.decode(T.self, from: data) {
                    return resp
                }
+               if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+                   throw AptosError.providerError(errorResult.message)
+               }
                throw AptosError.providerError("Parameter error or received wrong message")
            }
    }
     
-    public func POST<T: Decodable>(url:String,parameters:Encodable) -> Promise<T> {
+    public func POST<T: Decodable>(url: String, parameters: Encodable) -> Promise<T> {
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.post")
         queue.async {
             do {
-//                debugPrint("POST \(providerURL)")
                 let url = URL(string:url)
                 var urlRequest = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
                 urlRequest.httpMethod = "POST"
@@ -98,7 +106,7 @@ extension AptosRPCProvider {
                         return
                     }
                     guard data != nil else {
-                        rp.resolver.reject(AptosRpcProviderError.server(message: "Node response is empty"))
+                        rp.resolver.reject(AptosError.providerError("Node response is empty"))
                         return
                     }
                     rp.resolver.fulfill(data!)
@@ -116,27 +124,16 @@ extension AptosRPCProvider {
                 if let resp = try? decoder.decode(T.self, from: data) {
                     return resp
                 }
+                if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+                    throw AptosError.providerError(errorResult.message)
+                }
                 throw AptosError.providerError("Parameter error or received wrong message")
             }
     }
 }
 
-private extension Encodable {
+public extension Encodable {
     func toJSONData() throws -> Data {
         return try JSONEncoder().encode(self)
-    }
-}
-
-
-public enum AptosRpcProviderError: LocalizedError {
-    case unknown
-    case server(message: String)
-    public var errorDescription: String? {
-        switch self {
-        case .server(let message):
-            return message
-        default:
-            return "Unknown error"
-        }
     }
 }
