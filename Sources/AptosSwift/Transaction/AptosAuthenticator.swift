@@ -40,6 +40,19 @@ extension AptosAccountAuthenticator: BorshCodable {
     }
 }
 
+extension AptosAccountAuthenticator: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .Ed25519(let aptosAcountAuthenticatorEd25519):
+            try aptosAcountAuthenticatorEd25519.encode(to: encoder)
+        case .MultiEd25519(let aptosAccountAuthenticatorMultiEd25519):
+            try aptosAccountAuthenticatorMultiEd25519.encode(to: encoder)
+        case .Unknown:
+            throw AptosError.encodingError
+        }
+    }
+}
+
 public struct AptosAcountAuthenticatorEd25519: BorshCodable {
     public let publicKey: AptosPublicKeyEd25519
     public let signature: AptosSignatureEd25519
@@ -60,6 +73,22 @@ public struct AptosAcountAuthenticatorEd25519: BorshCodable {
     }
 }
 
+extension AptosAcountAuthenticatorEd25519: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("ed25519_signature", forKey: .type)
+        try container.encode(publicKey.hex, forKey: .publicKey)
+        try container.encode(signature.hex, forKey: .signature)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case type = "type"
+        case publicKey = "public_key"
+        case signature = "signature"
+    }
+}
+
+
 public struct AptosAccountAuthenticatorMultiEd25519: BorshCodable {
     public let publicKey: AptosMultiEd25519PublicKey
     public let signature: AptosMultiEd25519Signature
@@ -77,6 +106,21 @@ public struct AptosAccountAuthenticatorMultiEd25519: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         self.publicKey = try .init(from: &reader)
         self.signature = try .init(from: &reader)
+    }
+}
+
+extension AptosAccountAuthenticatorMultiEd25519: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("ed25519_signature", forKey: .type)
+        try container.encode(publicKey.publicKeys.map{$0.hex}, forKey: .publicKey)
+        try container.encode(signature.signatures.map{$0.hex}, forKey: .signature)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case type = "type"
+        case publicKey = "public_key"
+        case signature = "signature"
     }
 }
 
@@ -117,13 +161,13 @@ extension AptosTransactionAuthenticator: BorshCodable {
     }
 }
 
-extension AptosTransactionAuthenticator:HumanReadable {
-    public func toHuman() -> Any {
+extension AptosTransactionAuthenticator: Encodable {
+    public func encode(to encoder: Encoder) throws {
         switch self {
         case .Ed25519(let aptosTransactionAuthenticatorEd25519):
-            return aptosTransactionAuthenticatorEd25519.toHuman()
+            try aptosTransactionAuthenticatorEd25519.encode(to: encoder)
         default:
-            return []
+            throw AptosError.encodingError
         }
     }
 }
@@ -148,13 +192,18 @@ public struct AptosTransactionAuthenticatorEd25519: BorshCodable {
     }
 }
 
-extension AptosTransactionAuthenticatorEd25519:HumanReadable {
-    public func toHuman() -> Any {
-        return [
-            "type":"ed25519_signature",
-            "public_key": publicKey.hex,
-            "signature": signature.hex
-        ]
+extension AptosTransactionAuthenticatorEd25519:Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("ed25519_signature", forKey: .type)
+        try container.encode(publicKey.hex, forKey: .publicKey)
+        try container.encode(signature.hex, forKey: .signature)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case type = "type"
+        case publicKey = "public_key"
+        case signature = "signature"
     }
 }
 
@@ -175,6 +224,21 @@ public struct AptosTransactionAuthenticatorMultiEd25519: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         self.publicKey = try .init(from: &reader)
         self.signature = try .init(from: &reader)
+    }
+}
+
+extension AptosTransactionAuthenticatorMultiEd25519:Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("ed25519_signature", forKey: .type)
+        try container.encode(publicKey.publicKeys.map{$0.hex}, forKey: .publicKey)
+        try container.encode(signature.signatures.map{$0.hex}, forKey: .signature)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case type = "type"
+        case publicKey = "public_key"
+        case signature = "signature"
     }
 }
 

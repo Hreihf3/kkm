@@ -93,19 +93,22 @@ extension AptosScriptFunction {
     }
 }
 
-extension AptosScriptFunction:HumanReadable {
-    public func toHuman() -> Any {
+extension AptosScriptFunction: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
         let argAddress = try? AptosAddress(args.first ?? Data())
         var amountbinary = BinaryReader(bytes: args[1].bytes)
         let amount = try? UInt64(from: &amountbinary)
-        return [
-                "arguments": [
-                    argAddress?.address ?? "",
-                    String(amount ?? 0) 
-                ],
-                "function": "\(moduleName.toHuman())::\(functionName.value)",
-                "type": "script_function_payload",
-                "type_arguments": typeArgs.map{ $0.toHuman()}
-        ]
+        try container.encode([argAddress?.address ?? "",String(amount ?? 0) ], forKey: .arguments)
+        try container.encode("\(moduleName.rawValue)::\(functionName.value)", forKey: .function)
+        try container.encode("script_function_payload", forKey: .type)
+        try container.encode(typeArgs.map{$0.toEncodable() as! String}, forKey: .typeArguments)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case arguments = "arguments"
+        case function = "function"
+        case type = "type"
+        case typeArguments = "type_arguments"
     }
 }

@@ -47,13 +47,13 @@ extension AptosTransactionPayload: BorshCodable {
     }
 }
 
-extension AptosTransactionPayload:HumanReadable {
-    public func toHuman() -> Any {
+extension AptosTransactionPayload: Encodable {
+    public func encode(to encoder: Encoder) throws {
         switch self {
         case .ScriptFunction(let aptosTransactionPayloadScriptFunction):
-            return aptosTransactionPayloadScriptFunction.toHuman()
+            try aptosTransactionPayloadScriptFunction.encode(to: encoder)
         default :
-            return [String: Any]()
+            throw AptosError.encodingError
         }
     }
 }
@@ -116,8 +116,8 @@ public struct AptosTransactionPayloadScriptFunction: BorshCodable {
     }
 }
 
-extension AptosTransactionPayloadScriptFunction:HumanReadable {
-    public func toHuman() -> Any {
-        return self.value.toHuman()
+extension AptosTransactionPayloadScriptFunction: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        try self.value.encode(to: encoder)
     }
 }

@@ -41,7 +41,7 @@ public struct AptosRPCProvider {
 
 extension AptosRPCProvider {
     public func submitTransaction(signedTransaction: AptosSignedTransaction) -> Promise<TransactionResult> {
-        return self.POST(url: "\(nodeUrl)/transactions", parameters: signedTransaction.toHuman())
+        return self.POST(url: "\(nodeUrl)/transactions", parameters: signedTransaction)
     }
 }
 
@@ -84,7 +84,7 @@ extension AptosRPCProvider {
            }
    }
     
-    public func POST<T: Decodable>(url: String, parameters: Any) -> Promise<T> {
+    public func POST<T: Decodable>(url: String, parameters: Encodable) -> Promise<T> {
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.post")
@@ -95,7 +95,7 @@ extension AptosRPCProvider {
                 urlRequest.httpMethod = "POST"
                 urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-                urlRequest.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+                urlRequest.httpBody = try parameters.toJSONData()
 
                 task = self.session.dataTask(with: urlRequest){ (data, response, error) in
                     guard error == nil else {
@@ -123,6 +123,12 @@ extension AptosRPCProvider {
                 }
                 throw AptosError.providerError("Parameter error or received wrong message")
             }
+    }
+}
+
+public extension Encodable {
+    func toJSONData() throws -> Data {
+        return try JSONEncoder().encode(self)
     }
 }
 

@@ -9,6 +9,7 @@ import Foundation
 
 public enum AptosError: LocalizedError {
     case decodingError
+    case encodingError
     case serializeError
     case providerError(String)
     case keyError(String)
@@ -18,6 +19,8 @@ public enum AptosError: LocalizedError {
         switch self {
         case .decodingError:
             return "Decoding error"
+        case .encodingError:
+            return "Encoding error"
         case .serializeError:
             return "Serialize Error"
         case .providerError(let message):

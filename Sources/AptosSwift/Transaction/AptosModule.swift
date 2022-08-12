@@ -42,8 +42,7 @@ public struct AptosModuleBundle: BorshCodable {
 public struct AptosModuleId: BorshCodable {
     public let address: AptosAddress
     public let name: AptosIdentifier
-    
-    private let rawValue: String
+    public let rawValue: String
     
     /// Converts a string literal to a ModuleId
     /// - Parameter moduleId: String literal in format "AccountAddress::module_name", e.g. "0x1::coin"
@@ -71,11 +70,5 @@ public struct AptosModuleId: BorshCodable {
     public func serialize(to writer: inout Data) throws {
         try address.serialize(to: &writer)
         try name.serialize(to: &writer)
-    }
-}
-
-extension AptosModuleId:HumanReadable {
-    public func toHuman() -> Any {
-        return rawValue
     }
 }

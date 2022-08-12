@@ -72,19 +72,6 @@ extension AptosRawTransaction: BorshCodable {
     }
 }
 
-extension AptosRawTransaction: HumanReadable {
-    public func toHuman() -> Any {
-        return [
-            "sender": sender.address,
-            "sequence_number": String(sequenceNumber),
-            "max_gas_amount": String(maxGasAmount),
-            "gas_unit_price": String(gasUnitPrice),
-            "expiration_timestamp_secs": String(expirationTimestampSecs),
-            "payload": payload.toHuman()
-        ]
-    }
-}
-
 public struct AptosSignedTransaction {
     public let transaction: AptosRawTransaction
     public let authenticator: AptosTransactionAuthenticator
@@ -107,10 +94,25 @@ extension AptosSignedTransaction: BorshCodable {
     }
 }
 
-extension AptosSignedTransaction:HumanReadable {
-    public func toHuman() -> Any {
-        var human: [String: Any] = transaction.toHuman() as! [String : Any]
-        human["signature"] =  authenticator.toHuman()
-        return human
+extension AptosSignedTransaction: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(authenticator, forKey: .signature)
+        try container.encode(transaction.sender.address, forKey: .sender)
+        try container.encode(String(transaction.sequenceNumber), forKey: .sequenceNumber)
+        try container.encode(String(transaction.maxGasAmount), forKey: .maxGasAmount)
+        try container.encode(String(transaction.gasUnitPrice), forKey: .gasUnitPrice)
+        try container.encode(String(transaction.expirationTimestampSecs), forKey: .expirationTimestampSecs)
+        try container.encode(transaction.payload, forKey: .payload)
+    }
+    
+    public enum CodingKeys: String, CodingKey {
+        case sender = "sender"
+        case sequenceNumber = "sequence_number"
+        case maxGasAmount = "max_gas_amount"
+        case gasUnitPrice = "gas_unit_price"
+        case expirationTimestampSecs = "expiration_timestamp_secs"
+        case payload = "payload"
+        case signature = "signature"
     }
 }
