@@ -77,7 +77,7 @@ public struct AptosScriptFunction {
     }
 }
 
-extension AptosScriptFunction {
+extension AptosScriptFunction: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
         self.moduleName = try .init(from: &reader)
         self.functionName = try .init(from: &reader)
