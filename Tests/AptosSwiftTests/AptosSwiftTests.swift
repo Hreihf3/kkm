@@ -103,7 +103,7 @@ final class AptosSwiftTests: XCTestCase {
                 let function = try AptosScriptFunction.natural(module: "0x1::coin", func: "transfer", typeArgs: [AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))], args: [AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6").data,amountdata])
                 let payloadscriptfunction = AptosTransactionPayloadScriptFunction(value: function)
                 let data = UInt64(Date().timeIntervalSince1970)+10
-                let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 2, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: UInt64(1660296593), chainId: 22, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
+                let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), sequenceNumber: 3, maxGasAmount: 1000, gasUnitPrice: 1, expirationTimestampSecs: data, chainId: 23, payload: AptosTransactionPayload.ScriptFunction(payloadscriptfunction))
                 let signedtransaction = try transaction.sign(keyPair)
                 let signeddata = try signedtransaction.toJSONData()
                 print(String(data: signeddata, encoding: .utf8)!)
