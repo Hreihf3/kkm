@@ -3,6 +3,8 @@ import XCTest
 
 final class AptosSwiftTests: XCTestCase {
     
+    let nodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
+    
     func testKeyPair() throws {
         let keypair1 = try AptosKeyPairEd25519(mnemonics: "talk speak heavy can high immune romance language alarm sorry capable flame")
         XCTAssertEqual(keypair1.privateKeyHex, "0x2e0c19e199f9ba403e35817f078114bdcb6ea6341e749f02e4fea83ca055baa7")
@@ -74,14 +76,14 @@ final class AptosSwiftTests: XCTestCase {
     
     func testProviderExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
-        let provider = AptosRPCProvider(nodeUrl: "https://fullnode.devnet.aptoslabs.com")
+        let provider = AptosRPCProvider(nodeUrl: nodeUrl)
         DispatchQueue.global().async {
             do {
-//                let hashs = try provider.fundAccount(address: keypair.address.address).wait()
 //                let account = try provider.getAccountResources(address: "0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5").wait()
 //                let account = try provider.getAccountResource(address: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"), resourceType: "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>").wait()
                 let account = try provider.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait()
-                print(account.sequenceNumber)
+                XCTAssertTrue(UInt64(account.sequenceNumber)! >= 0)
+                
                 reqeustExpectation.fulfill()
             } catch {
                 reqeustExpectation.fulfill()
@@ -92,7 +94,7 @@ final class AptosSwiftTests: XCTestCase {
     
     func testSendTransactionExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
-        let provider = AptosRPCProvider(nodeUrl: "https://fullnode.devnet.aptoslabs.com")
+        let provider = AptosRPCProvider(nodeUrl: nodeUrl)
         DispatchQueue.global().async {
             do {
                 let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))

@@ -9,57 +9,55 @@ import Foundation
 import PromiseKit
 
 public struct AptosRPCProvider {
-    public var nodeUrl:String
-    var session:URLSession
+    public var nodeUrl: URL
+    private var session: URLSession
     
-    public init(nodeUrl: String) {
+    public init(nodeUrl: URL) {
         self.nodeUrl = nodeUrl
-        let config = URLSessionConfiguration.default
-        self.session = URLSession(configuration: config)
-    }
-    
-    public func fundAccount(address:String) -> Promise<[String]> {
-        return self.POST(url: "https://faucet.devnet.aptoslabs.com/mint?amount=0&address=\(address.stripHexPrefix())", parameters: [] as! [String])
+        
+        self.session = URLSession(configuration: .default)
     }
     
     public func getChainInfo() -> Promise<ChainInfo> {
-        return self.GET(url: nodeUrl)
+        return self.GET()
     }
     
     public func getAccount(address: AptosAddress) -> Promise<AccountResult> {
-        return self.GET(url: "\(nodeUrl)/accounts/\(address.address)")
+        return self.GET(path: "/accounts/\(address.address)")
     }
     
     public func getAccountResources(address: AptosAddress) -> Promise<[AccountResource]> {
-        return self.GET(url: "\(nodeUrl)/accounts/\(address.address)/resources")
+        return self.GET(path: "/accounts/\(address.address)/resources")
     }
     
     public func getAccountResource(address: AptosAddress, resourceType: String) -> Promise<AccountResource> {
-        return self.GET(url: "\(nodeUrl)/accounts/\(address.address)/resource/\(resourceType)")
+        return self.GET(path: "/accounts/\(address.address)/resource/\(resourceType)")
     }
 }
 
 extension AptosRPCProvider {
     public func submitTransaction(signedTransaction: AptosSignedTransaction) -> Promise<TransactionResult> {
-        return self.POST(url: "\(nodeUrl)/transactions", parameters: signedTransaction)
+        let headers: [String: String] = ["Content-Type": "application/x.aptos.signed_transaction+bcs"]
+        return self.POST(path: "/transactions", body: try? BorshEncoder().encode(signedTransaction), headers: headers)
     }
 }
 
 extension AptosRPCProvider {
     
-    public func GET<T: Codable>(url: String) -> Promise<T> {
-       let rp = Promise<Data>.pending()
-       var task: URLSessionTask? = nil
+    public func GET<T: Codable>(path: String? = nil) -> Promise<T> {
+        debugPrint("GET")
+        let rp = Promise<Data>.pending()
+        var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.get")
-       queue.async {
-           let encodeUrlString = url.addingPercentEncoding(withAllowedCharacters:
-                       .urlQueryAllowed)
-           var urlRequest = URLRequest(url: URL(string: encodeUrlString ?? "")!, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
-           urlRequest.httpMethod = "GET"
-           urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-           urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+        queue.async {
+            let url = URL(string: "\(self.nodeUrl.absoluteString)\(path ?? "")")!
+            debugPrint(url)
+            var urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
+            urlRequest.httpMethod = "GET"
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
 
-           task = self.session.dataTask(with: urlRequest){ (data, response, error) in
+            task = self.session.dataTask(with: urlRequest){ (data, response, error) in
                guard error == nil else {
                    rp.resolver.reject(error!)
                    return
@@ -69,71 +67,81 @@ extension AptosRPCProvider {
                    return
                }
                rp.resolver.fulfill(data!)
-           }
-           task?.resume()
-       }
-       return rp.promise.ensure(on: queue) {
-               task = nil
-           }.map(on: queue){ (data: Data) throws -> T in
-               let decoder = JSONDecoder()
-               decoder.keyDecodingStrategy = .convertFromSnakeCase
-               if let resp = try? decoder.decode(T.self, from: data) {
-                   return resp
-               }
-               if let errorResult = try? decoder.decode(RequestError.self, from: data) {
-                   throw AptosError.providerError(errorResult.message)
-               }
-               throw AptosError.providerError("Parameter error or received wrong message")
-           }
-   }
+            }
+            task?.resume()
+        }
+        return rp.promise.ensure(on: queue) {
+            task = nil
+        }.map(on: queue){ (data: Data) throws -> T in
+            debugPrint(String(data: data, encoding: .utf8) ?? "")
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            if let resp = try? decoder.decode(T.self, from: data) {
+               return resp
+            }
+            if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+               throw AptosError.providerError(errorResult.message)
+            }
+            throw AptosError.providerError("Parameter error or received wrong message")
+        }
+    }
     
-    public func POST<T: Decodable>(url: String, parameters: Encodable) -> Promise<T> {
+    public func POST<T: Decodable, K: Encodable>(path: String? = nil, parameters: K? = nil) -> Promise<T> {
+        let body: Data? = (parameters != nil ? try? JSONEncoder().encode(parameters!) : nil)
+        return POST(path: path, body: body, headers: [:])
+    }
+    
+    public func POST<T: Decodable>(path: String? = nil, body: Data? = nil, headers: [String: String] = [:]) -> Promise<T> {
+        debugPrint("POST")
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.post")
         queue.async {
-            do {
-                let url = URL(string:url)
-                var urlRequest = URLRequest(url: url!, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
-                urlRequest.httpMethod = "POST"
-                urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-                urlRequest.httpBody = try parameters.toJSONData()
-
-                task = self.session.dataTask(with: urlRequest){ (data, response, error) in
-                    guard error == nil else {
-                        rp.resolver.reject(error!)
-                        return
-                    }
-                    guard data != nil else {
-                        rp.resolver.reject(AptosError.providerError("Node response is empty"))
-                        return
-                    }
-                    rp.resolver.fulfill(data!)
-                }
-                task?.resume()
-            } catch {
-                rp.resolver.reject(error)
+            let url = URL(string: "\(self.nodeUrl.absoluteString)\(path ?? "")")!
+            debugPrint(url)
+            var urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
+            urlRequest.httpMethod = "POST"
+            
+            for key in headers.keys {
+                urlRequest.setValue(headers[key], forHTTPHeaderField: key)
             }
+            if !headers.keys.contains("Content-Type") {
+                urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            }
+            if !headers.keys.contains("Accept") {
+                urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
+            }
+            urlRequest.httpBody = body
+            debugPrint(body?.toHexString() ?? "")
+
+            task = self.session.dataTask(with: urlRequest){ (data, response, error) in
+                guard error == nil else {
+                    rp.resolver.reject(error!)
+                    return
+                }
+                guard data != nil else {
+                    rp.resolver.reject(AptosError.providerError("Node response is empty"))
+                    return
+                }
+                rp.resolver.fulfill(data!)
+            }
+            task?.resume()
         }
         return rp.promise.ensure(on: queue) {
-                task = nil
-            }.map(on: queue){ (data: Data) throws -> T in
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                if let resp = try? decoder.decode(T.self, from: data) {
-                    return resp
-                }
-                if let errorResult = try? decoder.decode(RequestError.self, from: data) {
-                    throw AptosError.providerError(errorResult.message)
-                }
-                throw AptosError.providerError("Parameter error or received wrong message")
+            task = nil
+        }.map(on: queue){ (data: Data) throws -> T in
+            debugPrint(String(data: data, encoding: .utf8) ?? "")
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            if let resp = try? decoder.decode(T.self, from: data) {
+                return resp
             }
-    }
-}
-
-public extension Encodable {
-    func toJSONData() throws -> Data {
-        return try JSONEncoder().encode(self)
+            if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+                throw AptosError.providerError(errorResult.message)
+            }
+            throw AptosError.providerError("Parameter error or received wrong message")
+        }
     }
 }

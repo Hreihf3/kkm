@@ -93,26 +93,3 @@ extension AptosSignedTransaction: BorshCodable {
         self.authenticator = try .init(from: &reader)
     }
 }
-
-extension AptosSignedTransaction: Encodable {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(authenticator, forKey: .signature)
-        try container.encode(transaction.sender.address, forKey: .sender)
-        try container.encode(String(transaction.sequenceNumber), forKey: .sequenceNumber)
-        try container.encode(String(transaction.maxGasAmount), forKey: .maxGasAmount)
-        try container.encode(String(transaction.gasUnitPrice), forKey: .gasUnitPrice)
-        try container.encode(String(transaction.expirationTimestampSecs), forKey: .expirationTimestampSecs)
-        try container.encode(transaction.payload, forKey: .payload)
-    }
-    
-    public enum CodingKeys: String, CodingKey {
-        case sender = "sender"
-        case sequenceNumber = "sequence_number"
-        case maxGasAmount = "max_gas_amount"
-        case gasUnitPrice = "gas_unit_price"
-        case expirationTimestampSecs = "expiration_timestamp_secs"
-        case payload = "payload"
-        case signature = "signature"
-    }
-}

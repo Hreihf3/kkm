@@ -59,31 +59,22 @@ extension AptosTypeTag: BorshCodable {
         }
     }
 }
- 
-extension AptosTypeTag {
-    public func toEncodable() -> Encodable {
-        switch self {
-        case .Struct(let aptosStructTag):
-            return aptosStructTag.rawValue
-        default:
-            return ""
-        }
-    }
-}
 
 public struct AptosStructTag: BorshCodable {
     public let address: AptosAddress
     public let moduleName: AptosIdentifier
     public let name: AptosIdentifier
     public let typeArgs: [AptosTypeTag]
-    public let rawValue:String
     
-    public init(address: AptosAddress, moduleName: AptosIdentifier, name: AptosIdentifier, typeArgs: [AptosTypeTag], rawValue:String) {
+    public var rawValue: String {
+        return "\(address.address)::\(moduleName.value)::\(name.value)"
+    }
+    
+    public init(address: AptosAddress, moduleName: AptosIdentifier, name: AptosIdentifier, typeArgs: [AptosTypeTag]) {
         self.address = address
         self.moduleName = moduleName
         self.name = name
         self.typeArgs = typeArgs
-        self.rawValue = rawValue
     }
     
     /// Converts a string literal to a StructTag
@@ -99,7 +90,7 @@ public struct AptosStructTag: BorshCodable {
         guard parts.count == 3 else {
             throw AptosError.otherEror("Invalid struct tag string literal.")
         }
-        return AptosStructTag(address: try AptosAddress(parts[0]), moduleName: AptosIdentifier(parts[1]), name: AptosIdentifier(parts[2]), typeArgs: [], rawValue: structTag)
+        return AptosStructTag(address: try AptosAddress(parts[0]), moduleName: AptosIdentifier(parts[1]), name: AptosIdentifier(parts[2]), typeArgs: [])
     }
     
     public init(from reader: inout BinaryReader) throws {
@@ -107,7 +98,6 @@ public struct AptosStructTag: BorshCodable {
         self.moduleName = try .init(from: &reader)
         self.name = try .init(from: &reader)
         self.typeArgs = try .init(from: &reader)
-        self.rawValue = "\(address.address)::\(moduleName.value)::\(name.value)"
     }
     
     public func serialize(to writer: inout Data) throws {
