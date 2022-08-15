@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import PromiseKit
 
 extension AptosRPCProvider {
     public func getChainInfo() -> Promise<AptosRPC.ChainInfo> {
