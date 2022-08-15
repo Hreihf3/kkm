@@ -33,10 +33,12 @@ extension AptosRPCProvider {
         return POST(path: "/transactions", body: try? BorshEncoder().encode(signedTransaction), headers: headers)
     }
     
-    /// Submits a signed transaction to the the endpoint that takes BCS payload
-    /// - Parameter signedTxn output of generateBCSSimulation()
+    /// Submits a transaction to the the endpoint that takes BCS payload
+    /// - Parameter rawTransaction AptosRawTransaction
+    /// - Parameter publicKey AptosPublicKeyEd25519
     /// - Returns: Simulation result in the form of UserTransaction
-    public func simulateSignedTransaction(_ signedTransaction: AptosSignedTransaction) -> Promise<[AptosRPC.UserTransaction]> {
+    public func simulateTransaction(_ rawTransaction: AptosRawTransaction, publicKey: AptosPublicKeyEd25519) -> Promise<[AptosRPC.UserTransaction]> {
+        let signedTransaction = rawTransaction.simulate(publicKey)
         let headers: [String: String] = ["Content-Type": "application/x.aptos.signed_transaction+bcs"]
         return POST(path: "/transactions/simulate", body: try? BorshEncoder().encode(signedTransaction), headers: headers)
     }

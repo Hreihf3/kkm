@@ -133,8 +133,7 @@ final class AptosSwiftTests: XCTestCase {
                                                       expirationTimestampSecs: date,
                                                       chainId: UInt8(chainId),
                                                       payload: AptosTransactionPayload.ScriptFunction(payload))
-                let simulateTransaction = try transaction.simulate(keyPair.publicKey)
-                let result1 = try provider.simulateSignedTransaction(simulateTransaction).wait()
+                let result1 = try provider.simulateTransaction(transaction, publicKey: keyPair.publicKey).wait()
                 debugPrint(result1)
                 reqeustExpectation.fulfill()
             } catch let error {
