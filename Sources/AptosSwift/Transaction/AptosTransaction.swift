@@ -44,8 +44,13 @@ public struct AptosRawTransaction {
         let publicKey = keyPair.publicKey
         let sigData = try keyPair.sign(message: message)
         
-        let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey,
-                                                                     signature: AptosSignatureEd25519(sigData))
+        let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey, signature: AptosSignatureEd25519(sigData))
+        return AptosSignedTransaction(transaction: self, authenticator: .Ed25519(authenticator))
+    }
+    
+    public func simulate(_ publicKey: AptosPublicKeyEd25519) throws -> AptosSignedTransaction {
+        let signature = Data(repeating: 0x00, count: 64)
+        let authenticator = try AptosTransactionAuthenticatorEd25519(publicKey: publicKey, signature: AptosSignatureEd25519(signature))
         return AptosSignedTransaction(transaction: self, authenticator: .Ed25519(authenticator))
     }
 }

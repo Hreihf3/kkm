@@ -102,7 +102,7 @@ final class AptosSwiftTests: XCTestCase {
                 let sequenceNumber = try provider.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
                 let chainId = try provider.getChainInfo().wait().chainId
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
-                let amount = UInt64(1000)
+                let amount = UInt64(10)
                 
                 let function = try AptosScriptFunction.natural(module: "0x1::coin",
                                                                func: "transfer",
@@ -123,8 +123,11 @@ final class AptosSwiftTests: XCTestCase {
                                                       expirationTimestampSecs: date,
                                                       chainId: UInt8(chainId),
                                                       payload: AptosTransactionPayload.ScriptFunction(payload))
+                let simulateTransaction = try transaction.simulate(keyPair.publicKey)
+                let result1 = try provider.simulateSignedTransaction(simulateTransaction).wait()
+                debugPrint(result1)
                 let signedtransaction = try transaction.sign(keyPair)
-                let result = try provider.submitTransaction(signedTransaction: signedtransaction).wait()
+                let result = try provider.submitSignedTransaction(signedtransaction).wait()
                 print("Hash -> \(result.hash)")
                 
                 reqeustExpectation.fulfill()

@@ -6,6 +6,13 @@
 //
 
 import Foundation
+
+
+public struct AptosPRCResponse {
+    public struct PendingTransaction {
+        
+    }
+}
 //chaininfo
 public struct ChainInfo: Codable {
     public let chainId: Int
