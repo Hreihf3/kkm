@@ -1,41 +1,52 @@
 {
-  "pins" : [
-    {
-      "identity" : "bip39swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mathwallet/BIP39swift",
-      "state" : {
-        "revision" : "6e654c1fedac7dc3f01443d8bdf108ab6d50245d",
-        "version" : "1.0.1"
+  "object": {
+    "pins": [
+      {
+        "package": "AnyCodable",
+        "repositoryURL": "https://github.com/Flight-School/AnyCodable.git",
+        "state": {
+          "branch": null,
+          "revision": "69261f239f0fffaf51495dadc4f8483fbfe97025",
+          "version": "0.6.1"
+        }
+      },
+      {
+        "package": "BIP39swift",
+        "repositoryURL": "https://github.com/mathwallet/BIP39swift",
+        "state": {
+          "branch": null,
+          "revision": "6e654c1fedac7dc3f01443d8bdf108ab6d50245d",
+          "version": "1.0.1"
+        }
+      },
+      {
+        "package": "CryptoSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "039f56c5d7960f277087a0be51f5eb04ed0ec073",
+          "version": "1.5.1"
+        }
+      },
+      {
+        "package": "PromiseKit",
+        "repositoryURL": "https://github.com/mxcl/PromiseKit.git",
+        "state": {
+          "branch": null,
+          "revision": "ed3192004c0b00b4b3d7baa9578ee655c66faae3",
+          "version": "6.18.0"
+        }
+      },
+      {
+        "package": "TweetNacl",
+        "repositoryURL": "https://github.com/lishuailibertine/tweetnacl-swiftwrap",
+        "state": {
+          "branch": null,
+          "revision": "80afe3695c4613517c2b5d04b5d3ae41bda33647",
+          "version": "1.0.5"
+        }
       }
-    },
-    {
-      "identity" : "cryptoswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
-      "state" : {
-        "revision" : "039f56c5d7960f277087a0be51f5eb04ed0ec073",
-        "version" : "1.5.1"
-      }
-    },
-    {
-      "identity" : "promisekit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mxcl/PromiseKit.git",
-      "state" : {
-        "revision" : "ed3192004c0b00b4b3d7baa9578ee655c66faae3",
-        "version" : "6.18.0"
-      }
-    },
-    {
-      "identity" : "tweetnacl-swiftwrap",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/lishuailibertine/tweetnacl-swiftwrap",
-      "state" : {
-        "revision" : "80afe3695c4613517c2b5d04b5d3ae41bda33647",
-        "version" : "1.0.5"
-      }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }

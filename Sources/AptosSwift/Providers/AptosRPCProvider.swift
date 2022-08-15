@@ -7,6 +7,7 @@
 
 import Foundation
 import PromiseKit
+import AnyCodable
 
 public struct AptosRPCProvider {
     public var nodeUrl: URL
@@ -18,26 +19,26 @@ public struct AptosRPCProvider {
         self.session = URLSession(configuration: .default)
     }
     
-    public func getChainInfo() -> Promise<ChainInfo> {
+    public func getChainInfo() -> Promise<AptosRPC.ChainInfo> {
         return self.GET()
     }
     
-    public func getAccount(address: AptosAddress) -> Promise<AccountResult> {
+    public func getAccountData(address: AptosAddress) -> Promise<AptosRPC.AccountData> {
         return self.GET(path: "/accounts/\(address.address)")
     }
     
-    public func getAccountResources(address: AptosAddress) -> Promise<[AccountResource]> {
+    public func getAccountResources(address: AptosAddress) -> Promise<[AptosRPC.AccountResource]> {
         return self.GET(path: "/accounts/\(address.address)/resources")
     }
     
-    public func getAccountResource(address: AptosAddress, resourceType: String) -> Promise<AccountResource> {
+    public func getAccountResource(address: AptosAddress, resourceType: String) -> Promise<AptosRPC.AccountResource> {
         return self.GET(path: "/accounts/\(address.address)/resource/\(resourceType)")
     }
     
     /// Submits a signed transaction to the the endpoint that takes BCS payload
     /// - Parameter signedTransaction: A BCS signed transaction
     /// - Returns: Transaction that is accepted and submitted to mempool
-    public func submitSignedTransaction(_ signedTransaction: AptosSignedTransaction) -> Promise<TransactionResult> {
+    public func submitSignedTransaction(_ signedTransaction: AptosSignedTransaction) -> Promise<AptosRPC.PendingTransaction> {
         let headers: [String: String] = ["Content-Type": "application/x.aptos.signed_transaction+bcs"]
         return self.POST(path: "/transactions", body: try? BorshEncoder().encode(signedTransaction), headers: headers)
     }
@@ -45,7 +46,7 @@ public struct AptosRPCProvider {
     /// Submits a signed transaction to the the endpoint that takes BCS payload
     /// - Parameter signedTxn output of generateBCSSimulation()
     /// - Returns: Simulation result in the form of UserTransaction
-    public func simulateSignedTransaction(_ signedTransaction: AptosSignedTransaction) -> Promise<TransactionResult> {
+    public func simulateSignedTransaction(_ signedTransaction: AptosSignedTransaction) -> Promise<[AptosRPC.UserTransaction]> {
         let headers: [String: String] = ["Content-Type": "application/x.aptos.signed_transaction+bcs"]
         return self.POST(path: "/transactions/simulate", body: try? BorshEncoder().encode(signedTransaction), headers: headers)
     }
@@ -53,14 +54,14 @@ public struct AptosRPCProvider {
 
 extension AptosRPCProvider {
     
-    public func GET<T: Codable>(path: String? = nil) -> Promise<T> {
-        debugPrint("GET")
+    public func GET<T: Decodable>(path: String? = nil) -> Promise<T> {
+//        debugPrint("GET")
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.get")
         queue.async {
-            let url = URL(string: "\(self.nodeUrl.absoluteString)\(path ?? "")")!
-            debugPrint(url)
+            let url = URL(string: "\(self.nodeUrl.absoluteString)\(path?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!
+//            debugPrint(url)
             var urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
             urlRequest.httpMethod = "GET"
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -82,14 +83,14 @@ extension AptosRPCProvider {
         return rp.promise.ensure(on: queue) {
             task = nil
         }.map(on: queue){ (data: Data) throws -> T in
-            debugPrint(String(data: data, encoding: .utf8) ?? "")
+//            debugPrint(String(data: data, encoding: .utf8) ?? "")
             
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             if let resp = try? decoder.decode(T.self, from: data) {
                return resp
             }
-            if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+            if let errorResult = try? decoder.decode(AptosRPC.Error.self, from: data) {
                throw AptosError.providerError(errorResult.message)
             }
             throw AptosError.providerError("Parameter error or received wrong message")
@@ -102,7 +103,7 @@ extension AptosRPCProvider {
     }
     
     public func POST<T: Decodable>(path: String? = nil, body: Data? = nil, headers: [String: String] = [:]) -> Promise<T> {
-        debugPrint("POST")
+//        debugPrint("POST")
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.post")
@@ -122,7 +123,7 @@ extension AptosRPCProvider {
                 urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
             }
             urlRequest.httpBody = body
-            debugPrint(body?.toHexString() ?? "")
+//            debugPrint(body?.toHexString() ?? "")
 
             task = self.session.dataTask(with: urlRequest){ (data, response, error) in
                 guard error == nil else {
@@ -140,14 +141,14 @@ extension AptosRPCProvider {
         return rp.promise.ensure(on: queue) {
             task = nil
         }.map(on: queue){ (data: Data) throws -> T in
-            debugPrint(String(data: data, encoding: .utf8) ?? "")
+//            debugPrint(String(data: data, encoding: .utf8) ?? "")
             
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             if let resp = try? decoder.decode(T.self, from: data) {
                 return resp
             }
-            if let errorResult = try? decoder.decode(RequestError.self, from: data) {
+            if let errorResult = try? decoder.decode(AptosRPC.Error.self, from: data) {
                 throw AptosError.providerError(errorResult.message)
             }
             throw AptosError.providerError("Parameter error or received wrong message")

@@ -70,7 +70,7 @@ extension String: BorshDeserializable {
     public init(from reader: inout BinaryReader) throws {
         let count: UInt32 = try UVarInt.init(from: &reader).value
         let bytes = reader.read(count: count)
-        guard let value = String(bytes: bytes, encoding: .utf8) else { throw AptosError.decodingError }
+        guard let value = String(bytes: bytes, encoding: .utf8) else { throw AptosError.deserializeError }
         self = value
     }
 }

@@ -49,7 +49,7 @@ extension AptosTransactionPayload: BorshCodable {
 
 public struct AptosTransactionPayloadWriteSet: BorshCodable {
     public init(from reader: inout BinaryReader) throws {
-        throw AptosError.decodingError
+        throw AptosError.deserializeError
     }
     
     public func serialize(to writer: inout Data) throws {

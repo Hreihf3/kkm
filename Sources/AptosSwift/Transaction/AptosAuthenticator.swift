@@ -35,7 +35,7 @@ extension AptosAccountAuthenticator: BorshCodable {
         switch index {
         case 0: self = .Ed25519(try AptosAcountAuthenticatorEd25519(from: &reader))
         case 1: self = .MultiEd25519(try AptosAccountAuthenticatorMultiEd25519(from: &reader))
-        default: throw AptosError.decodingError
+        default: throw AptosError.deserializeError
         }
     }
 }
@@ -112,7 +112,7 @@ extension AptosTransactionAuthenticator: BorshCodable {
         case 0: self = .Ed25519(try AptosTransactionAuthenticatorEd25519(from: &reader))
         case 1: self = .MultiEd25519(try AptosTransactionAuthenticatorMultiEd25519(from: &reader))
         case 2: self = .MultiAgent(try AptosTransactionAuthenticatorMultiAgent(from: &reader))
-        default: throw AptosError.decodingError
+        default: throw AptosError.deserializeError
         }
     }
 }

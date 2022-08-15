@@ -43,7 +43,7 @@ public struct AptosModuleId: BorshCodable {
     public let address: AptosAddress
     public let name: AptosIdentifier
     
-    public var value: String {
+    public var rawValue: String {
         return "\(address.address)::\(name.value)"
     }
     

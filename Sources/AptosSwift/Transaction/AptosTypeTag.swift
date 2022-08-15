@@ -19,6 +19,17 @@ public enum AptosTypeTag {
     case Unknown
 }
 
+extension AptosTypeTag {
+    public var stringValue: String {
+        switch self {
+        case .Struct(let tag):
+            return tag.rawValue
+        default:
+            return ""
+        }
+    }
+}
+
 extension AptosTypeTag: BorshCodable {
     public func serialize(to writer: inout Data) throws {
         switch self {
