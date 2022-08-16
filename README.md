@@ -4,7 +4,7 @@
 
 ### Swift Package Manager
 
-Add the AnyCodable package to your target dependencies in `Package.swift`:
+Add the AptosSwift package to your target dependencies in `Package.swift`:
 
 ```swift
 import PackageDescription
