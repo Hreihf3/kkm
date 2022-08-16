@@ -153,7 +153,6 @@ let transaction = AptosRawTransaction(sender: keyPair.address,
                                       expirationTimestampSecs: date,
                                       chainId: UInt8(chainId),
                                       payload: AptosTransactionPayload.ScriptFunction(payload))
-let signedtransaction = try transaction.sign(keyPair)
 let result = try provider.simulateTransaction(transaction, publicKey: keyPair.publicKey).wait()
 debugPrint(result)
 ...
