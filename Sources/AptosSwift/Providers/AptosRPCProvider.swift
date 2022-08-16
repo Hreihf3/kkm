@@ -22,14 +22,13 @@ public struct AptosRPCProvider {
 
 extension AptosRPCProvider {
     
-    public func GET<T: Decodable>(path: String? = nil) -> Promise<T> {
-//        debugPrint("GET")
+    public func GET<T: Decodable>(path: String, parameters: [String: Any]? = nil) -> Promise<T> {
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.get")
         queue.async {
-            let url = URL(string: "\(self.nodeUrl.absoluteString)\(path?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")")!
-//            debugPrint(url)
+            let url = self.nodeUrl.appendPath(path).appendingQueryParameters(parameters)
+//            debugPrint("GET \(url)")
             var urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
             urlRequest.httpMethod = "GET"
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -65,19 +64,18 @@ extension AptosRPCProvider {
         }
     }
     
-    public func POST<T: Decodable, K: Encodable>(path: String? = nil, parameters: K? = nil) -> Promise<T> {
+    public func POST<T: Decodable, K: Encodable>(path: String, parameters: K? = nil) -> Promise<T> {
         let body: Data? = (parameters != nil ? try? JSONEncoder().encode(parameters!) : nil)
         return POST(path: path, body: body, headers: [:])
     }
     
-    public func POST<T: Decodable>(path: String? = nil, body: Data? = nil, headers: [String: String] = [:]) -> Promise<T> {
-//        debugPrint("POST")
+    public func POST<T: Decodable>(path: String, body: Data? = nil, headers: [String: String] = [:]) -> Promise<T> {
         let rp = Promise<Data>.pending()
         var task: URLSessionTask? = nil
         let queue = DispatchQueue(label: "aptos.post")
         queue.async {
-            let url = URL(string: "\(self.nodeUrl.absoluteString)\(path ?? "")")!
-            debugPrint(url)
+            let url = self.nodeUrl.appendPath(path)
+//            debugPrint("POST \(url)")
             var urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
             urlRequest.httpMethod = "POST"
             
@@ -91,7 +89,7 @@ extension AptosRPCProvider {
                 urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
             }
             urlRequest.httpBody = body
-//            debugPrint(body?.toHexString() ?? "")
+            debugPrint(body?.toHexString() ?? "")
 
             task = self.session.dataTask(with: urlRequest){ (data, response, error) in
                 guard error == nil else {

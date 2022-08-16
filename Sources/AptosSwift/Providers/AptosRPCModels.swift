@@ -14,7 +14,11 @@ public struct AptosRPC {
         public let message: String
     }
     
-    public struct ChainInfo: Decodable {
+    public struct Healthy: Decodable {
+        public let message: String
+    }
+    
+    public struct LedgerInfo: Decodable {
         public let epoch: String
         public let chainId: Int
         public let blockHeight: String
@@ -81,6 +85,20 @@ public struct AptosRPC {
         }
     }
     
+    public struct AccountModule: Decodable {
+        public let bytecode: String
+        public let abi: AnyCodable
+    }
+    
+    public struct Block: Decodable {
+        public let blockHeight: String
+        public let blockHash: String
+        public let blockTimestamp: String
+        public let firstVersion: String
+        public let lastVersion: String
+        public let transactions: [Transaction]?
+    }
+    
     public struct Event: Decodable {
         public let key: String
         public let sequenceNumber: String
@@ -118,4 +136,6 @@ public struct AptosRPC {
         public let events: [Event]
         public let timestamp: String
     }
+    
+    public typealias Transaction = [String: AnyCodable]
 }

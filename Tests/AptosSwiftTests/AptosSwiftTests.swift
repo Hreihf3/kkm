@@ -76,12 +76,15 @@ final class AptosSwiftTests: XCTestCase {
         let provider = AptosRPCProvider(nodeUrl: nodeUrl)
         DispatchQueue.global().async {
             do {
-                let chainInfo = try provider.getChainInfo().wait()
-                XCTAssertTrue(chainInfo.chainId > 0)
-                XCTAssertTrue((UInt64(chainInfo.blockHeight) ?? 0) > 0)
+                let healthy = try provider.healthy().wait()
+                XCTAssertEqual(healthy.message, "aptos-node:ok")
+                
+                let ledgerInfo = try provider.getLedgerInfo().wait()
+                XCTAssertTrue(ledgerInfo.chainId > 0)
+                XCTAssertTrue((UInt64(ledgerInfo.blockHeight) ?? 0) > 0)
                 
                 let address = try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
-                let accountData = try provider.getAccountData(address: address).wait()
+                let accountData = try provider.getAccount(address: address).wait()
                 XCTAssertEqual(accountData.authenticationKey, address.address)
                 
                 let accountResources = try provider.getAccountResources(address: address).wait()
@@ -93,6 +96,18 @@ final class AptosSwiftTests: XCTestCase {
                 
                 let coinStore = try accountResource.to(AptosRPC.AccountResourceData.CoinStore.self)
                 XCTAssertTrue(!coinStore.coin.value.isEmpty)
+                
+                let accountModules = try provider.getAccountModules(address: try AptosAddress("0x1")).wait()
+                XCTAssertTrue(!accountModules.isEmpty)
+                
+                let accountModule = try provider.getAccountModule(address: try AptosAddress("0x1"), moduleName: "code").wait()
+                XCTAssertTrue(!accountModule.bytecode.isEmpty)
+                
+                let block = try provider.getBlock(0).wait()
+                XCTAssertEqual(block.blockHeight, "0")
+                
+                let transaction = try provider.getTransactionByHash("0xafa0af9bd0365114c53919a65d9e3b9c981023e454d8e1ea84253251eec7c201").wait()
+                XCTAssertEqual(transaction["hash"], "0xafa0af9bd0365114c53919a65d9e3b9c981023e454d8e1ea84253251eec7c201")
 
                 reqeustExpectation.fulfill()
             } catch {
@@ -109,8 +124,8 @@ final class AptosSwiftTests: XCTestCase {
             do {
                 let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
                 
-                let sequenceNumber = try provider.getAccountData(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
-                let chainId = try provider.getChainInfo().wait().chainId
+                let sequenceNumber = try provider.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
+                let chainId = try provider.getLedgerInfo().wait().chainId
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
                 let amount = UInt64(10)
                 
@@ -151,8 +166,8 @@ final class AptosSwiftTests: XCTestCase {
             do {
                 let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
                 
-                let sequenceNumber = try provider.getAccountData(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
-                let chainId = try provider.getChainInfo().wait().chainId
+                let sequenceNumber = try provider.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
+                let chainId = try provider.getLedgerInfo().wait().chainId
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
                 let amount = UInt64(10)
                 

@@ -9,20 +9,76 @@ import Foundation
 import PromiseKit
 
 extension AptosRPCProvider {
-    public func getChainInfo() -> Promise<AptosRPC.ChainInfo> {
+    
+    /// Check basic node health
+    /// - Parameter durationSecs: If the duration_secs param is provided, this endpoint will return a 200 if the following condition is true:
+    ///     server_latest_ledger_info_timestamp >= server_current_time_timestamp - duration_secs
+    /// - Returns: AptosRPC.Healthy
+    public func healthy(durationSecs: UInt32? = nil) -> Promise<AptosRPC.Healthy> {
+        var parameters: [String : Any]?
+        if let secs = durationSecs {
+            parameters = ["duration_secs": secs]
+        }
+        return GET(path: "/v1/-/healthy", parameters: parameters)
+    }
+    
+    /// Get the latest ledger information, including data such as chain ID, role type, ledger versions, epoch, etc.
+    /// - Returns: AptosRPC.LedgerInfo
+    public func getLedgerInfo() -> Promise<AptosRPC.LedgerInfo> {
         return GET(path: "/v1")
     }
     
-    public func getAccountData(address: AptosAddress) -> Promise<AptosRPC.AccountData> {
+    /// Get blocks by height
+    /// - Parameters:
+    ///   - blockHeight: Block Height
+    ///   - withTransactions: true,false,nil
+    /// - Returns: AptosRPC.Block
+    public func getBlock(_ blockHeight: UInt64, withTransactions: Bool? = nil) -> Promise<AptosRPC.Block> {
+        var parameters: [String : Any]?
+        if let wt = withTransactions {
+            parameters = ["with_transactions": wt]
+        }
+        return GET(path: "/v1/blocks/by_height/\(blockHeight)", parameters: parameters)
+    }
+    
+    /// Get account
+    /// - Parameter address: Hex encoded 32 byte Aptos account address
+    /// - Returns: high level information about an account such as its sequence number
+    public func getAccount(address: AptosAddress) -> Promise<AptosRPC.AccountData> {
         return GET(path: "/v1/accounts/\(address.address)")
     }
     
+    /// Get account resources
+    /// - Parameter address: Hex encoded 32 byte Aptos account address
+    /// - Returns: all account resources
     public func getAccountResources(address: AptosAddress) -> Promise<[AptosRPC.AccountResource]> {
         return GET(path: "/v1/accounts/\(address.address)/resources")
     }
     
+    /// Get specific account resource
+    /// - Parameters:
+    ///   - address: Hex encoded 32 byte Aptos account address
+    ///   - resourceType: String representation of a MoveStructTag (on-chain Move struct type).
+    ///                   This exists so you can specify MoveStructTags as path / query parameters, e.g. for get_events_by_event_handle.
+    /// - Returns: the resource of a specific type
     public func getAccountResource(address: AptosAddress, resourceType: String) -> Promise<AptosRPC.AccountResource> {
         return GET(path: "/v1/accounts/\(address.address)/resource/\(resourceType)")
+    }
+    
+    /// Get account modules
+    /// - Parameter address: Hex encoded 32 byte Aptos account address
+    /// - Returns: All account modules at a given address at a specific ledger version (AKA transaction version)
+    public func getAccountModules(address: AptosAddress) -> Promise<[AptosRPC.AccountModule]> {
+        return GET(path: "/v1/accounts/\(address.address)/modules")
+    }
+    
+    /// Get specific account module
+    /// - Parameters:
+    ///   - address: Hex encoded 32 byte Aptos account address
+    ///   - moduleName: Module name
+    /// - Returns: the module with a specific name residing at a given account at a specified ledger version (AKA transaction version)
+    public func getAccountModule(address: AptosAddress, moduleName: String) -> Promise<AptosRPC.AccountModule> {
+        return GET(path: "/v1/accounts/\(address.address)/module/\(moduleName)")
     }
     
     /// Submits a signed transaction to the the endpoint that takes BCS payload
@@ -41,5 +97,12 @@ extension AptosRPCProvider {
         let signedTransaction = rawTransaction.simulate(publicKey)
         let headers: [String: String] = ["Content-Type": "application/x.aptos.signed_transaction+bcs"]
         return POST(path: "/v1/transactions/simulate", body: try? BorshEncoder().encode(signedTransaction), headers: headers)
+    }
+    
+    /// Get transaction by hash
+    /// - Parameter txnHash: Transaction Hash
+    /// - Returns: AptosRPC.Block
+    public func getTransactionByHash(_ txnHash: String) -> Promise<AptosRPC.Transaction> {
+        return GET(path: "/v1/transactions/by_hash/\(txnHash)")
     }
 }
