@@ -48,6 +48,7 @@ public struct AptosKeyPairEd25519 {
         guard let seed = BIP39.seedFromMmemonics(mnemonics) else {
             throw AptosError.keyError("Invalid Mnemonics")
         }
+        // let newSeed = NaclSign.KeyPair.deriveKey(path: "m/44'/637'/0'/0'", seed: seed).key
         try self.init(seed: seed.subdata(in: 0..<32))
         self.mnemonics = mnemonics
     }

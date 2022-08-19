@@ -95,7 +95,7 @@ let chainId = try provider.getLedgerInfo().wait().chainId
 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
 let amount = UInt64(10)
 
-let function = try AptosScriptFunction.natural(module: "0x1::coin",
+let function = try AptosEntryFunction.natural(module: "0x1::coin",
                                                 func: "transfer",
                                                 typeArgs: [
                                                 AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))
@@ -105,7 +105,7 @@ let function = try AptosScriptFunction.natural(module: "0x1::coin",
                                                 try BorshEncoder().encode(amount)
                                                 ]
 )
-let payload = AptosTransactionPayloadScriptFunction(value: function)
+let payload = AptosTransactionPayloadEntryFunction(value: function)
 let date = UInt64(Date().timeIntervalSince1970 + 60)
 let transaction = AptosRawTransaction(sender: keyPair.address,
                                       sequenceNumber: UInt64(sequenceNumber)!,
@@ -113,7 +113,7 @@ let transaction = AptosRawTransaction(sender: keyPair.address,
                                       gasUnitPrice: 1,
                                       expirationTimestampSecs: date,
                                       chainId: UInt8(chainId),
-                                      payload: AptosTransactionPayload.ScriptFunction(payload))
+                                      payload: AptosTransactionPayload.EntryFunction(payload))
 let signedtransaction = try transaction.sign(keyPair)
 let result = try provider.submitSignedTransaction(signedtransaction).wait()
 debugPrint(result)
@@ -134,7 +134,7 @@ let chainId = try provider.getLedgerInfo().wait().chainId
 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
 let amount = UInt64(10)
 
-let function = try AptosScriptFunction.natural(module: "0x1::coin",
+let function = try AptosEntryFunction.natural(module: "0x1::coin",
                                                 func: "transfer",
                                                 typeArgs: [
                                                 AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))
@@ -144,7 +144,7 @@ let function = try AptosScriptFunction.natural(module: "0x1::coin",
                                                 try BorshEncoder().encode(amount)
                                                 ]
 )
-let payload = AptosTransactionPayloadScriptFunction(value: function)
+let payload = AptosTransactionPayloadEntryFunction(value: function)
 let date = UInt64(Date().timeIntervalSince1970 + 60)
 let transaction = AptosRawTransaction(sender: keyPair.address,
                                       sequenceNumber: UInt64(sequenceNumber)!,
@@ -152,7 +152,7 @@ let transaction = AptosRawTransaction(sender: keyPair.address,
                                       gasUnitPrice: 1,
                                       expirationTimestampSecs: date,
                                       chainId: UInt8(chainId),
-                                      payload: AptosTransactionPayload.ScriptFunction(payload))
+                                      payload: AptosTransactionPayload.EntryFunction(payload))
 let result = try provider.simulateTransaction(transaction, publicKey: keyPair.publicKey).wait()
 debugPrint(result)
 ...

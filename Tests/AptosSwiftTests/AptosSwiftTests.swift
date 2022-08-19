@@ -34,7 +34,7 @@ final class AptosSwiftTests: XCTestCase {
             try BorshEncoder().encode(AptosAddress("0xdd")),
             try BorshEncoder().encode(UInt64(1))
         ]
-        let payload = try AptosTransactionPayloadScriptFunction(value: .natural(module: "0x1222::coin",
+        let payload = try AptosTransactionPayloadEntryFunction(value: .natural(module: "0x1222::coin",
                                                                                 func: "transfer",
                                                                                 typeArgs: [token],
                                                                                 args: args))
@@ -45,7 +45,7 @@ final class AptosSwiftTests: XCTestCase {
                                             gasUnitPrice: 0,
                                             expirationTimestampSecs: 18446744073709551615,
                                             chainId: 4,
-                                            payload: .ScriptFunction(payload))
+                                            payload: .EntryFunction(payload))
         let signedTx = try rawTx.sign(keyPair)
         
         XCTAssertEqual(try BorshEncoder().encode(signedTx), Data(hex: "000000000000000000000000000000000000000000000000000000000a550c18000000000000000003000000000000000000000000000000000000000000000000000000000000122204636f696e087472616e73666572010700000000000000000000000000000000000000000000000000000000000000010a6170746f735f636f696e094170746f73436f696e00022000000000000000000000000000000000000000000000000000000000000000dd080100000000000000d0070000000000000000000000000000ffffffffffffffff040020b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a4920040d7b32e9efbc640963782b11833159a3d62ba962c3f1e5580a9bab89ab012d99c38ed54ab8c0383a438a9a562b3b4b519bd31265130f2955f744125929ff23307"))
@@ -129,7 +129,7 @@ final class AptosSwiftTests: XCTestCase {
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
                 let amount = UInt64(10)
                 
-                let function = try AptosScriptFunction.natural(module: "0x1::coin",
+                let function = try AptosEntryFunction.natural(module: "0x1::coin",
                                                                func: "transfer",
                                                                typeArgs: [
                                                                 AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))
@@ -139,7 +139,7 @@ final class AptosSwiftTests: XCTestCase {
                                                                 try BorshEncoder().encode(amount)
                                                                ]
                 )
-                let payload = AptosTransactionPayloadScriptFunction(value: function)
+                let payload = AptosTransactionPayloadEntryFunction(value: function)
                 let date = UInt64(Date().timeIntervalSince1970 + 60)
                 let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"),
                                                       sequenceNumber: UInt64(sequenceNumber)!,
@@ -147,7 +147,7 @@ final class AptosSwiftTests: XCTestCase {
                                                       gasUnitPrice: 1,
                                                       expirationTimestampSecs: date,
                                                       chainId: UInt8(chainId),
-                                                      payload: AptosTransactionPayload.ScriptFunction(payload))
+                                                      payload: AptosTransactionPayload.EntryFunction(payload))
                 let result1 = try provider.simulateTransaction(transaction, publicKey: keyPair.publicKey).wait()
                 debugPrint(result1)
                 reqeustExpectation.fulfill()
@@ -164,14 +164,15 @@ final class AptosSwiftTests: XCTestCase {
         let provider = AptosRPCProvider(nodeUrl: nodeUrl)
         DispatchQueue.global().async {
             do {
+                // Address[0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5]
                 let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
                 
-                let sequenceNumber = try provider.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
+                let sequenceNumber = try provider.getAccount(address: keyPair.address).wait().sequenceNumber
                 let chainId = try provider.getLedgerInfo().wait().chainId
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
                 let amount = UInt64(10)
                 
-                let function = try AptosScriptFunction.natural(module: "0x1::coin",
+                let function = try AptosEntryFunction.natural(module: "0x1::coin",
                                                                func: "transfer",
                                                                typeArgs: [
                                                                 AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))
@@ -181,15 +182,15 @@ final class AptosSwiftTests: XCTestCase {
                                                                 try BorshEncoder().encode(amount)
                                                                ]
                 )
-                let payload = AptosTransactionPayloadScriptFunction(value: function)
+                let payload = AptosTransactionPayloadEntryFunction(value: function)
                 let date = UInt64(Date().timeIntervalSince1970 + 60)
-                let transaction = AptosRawTransaction(sender: try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5"),
+                let transaction = AptosRawTransaction(sender: keyPair.address,
                                                       sequenceNumber: UInt64(sequenceNumber)!,
                                                       maxGasAmount: 1000,
                                                       gasUnitPrice: 1,
                                                       expirationTimestampSecs: date,
                                                       chainId: UInt8(chainId),
-                                                      payload: AptosTransactionPayload.ScriptFunction(payload))
+                                                      payload: AptosTransactionPayload.EntryFunction(payload))
                 let signedtransaction = try transaction.sign(keyPair)
                 let result = try provider.submitSignedTransaction(signedtransaction).wait()
                 print(result)
