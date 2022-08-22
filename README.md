@@ -54,7 +54,7 @@ debugPrint(keyPair.address.address)
 import AptosSwift
 
 let nodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
-let provider = AptosRPCProvider(nodeUrl: nodeUrl)
+let provider = AptosClientProvider(nodeUrl: nodeUrl)
 
 let healthy = try provider.healthy().wait()
 debugPrint(healthy)
@@ -70,7 +70,7 @@ let resourceType = "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>"
 let accountResource = try provider.getAccountResource(address: address, resourceType: resourceType).wait()
 debugPrint(accountResource)
 
-let coinStore = try accountResource.to(AptosRPC.AccountResourceData.CoinStore.self)
+let coinStore = try accountResource.to(AptosClient.AccountResourceData.CoinStore.self)
 debugPrint(coinStore)
 
 let accountModules = try provider.getAccountModules(address: try AptosAddress("0x1")).wait()
@@ -87,7 +87,7 @@ debugPrint(block)
 import AptosSwift
 
 let nodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
-let provider = AptosRPCProvider(nodeUrl: nodeUrl)
+let provider = AptosClientProvider(nodeUrl: nodeUrl)
 
 let keyPair = try AptosKeyPairEd25519.randomKeyPair()
 let sequenceNumber = try provider.getAccount(address: keyPair.address).wait().sequenceNumber
@@ -126,7 +126,7 @@ debugPrint(result)
 import AptosSwift
 
 let nodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
-let provider = AptosRPCProvider(nodeUrl: nodeUrl)
+let provider = AptosClientProvider(nodeUrl: nodeUrl)
 
 let keyPair = try AptosKeyPairEd25519.randomKeyPair()
 let sequenceNumber = try provider.getAccount(address: keyPair.address).wait().sequenceNumber

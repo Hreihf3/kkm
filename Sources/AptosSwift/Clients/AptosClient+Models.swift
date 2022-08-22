@@ -1,5 +1,5 @@
 //
-//  AptosRPCModels.swift
+//  AptosClientModels.swift
 //  
 //
 //  Created by Forrest on 2022/8/15.
@@ -8,7 +8,7 @@
 import Foundation
 import AnyCodable
 
-public struct AptosRPC {
+extension AptosClient {
     public struct Error: Decodable {
         public let code: Int
         public let message: String

@@ -4,6 +4,7 @@ import XCTest
 final class AptosSwiftTests: XCTestCase {
     
     let nodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
+    let faucetUrl = URL(string: "https://faucet.devnet.aptoslabs.com")!
     
     func testKeyPair() throws {
         let keypair1 = try AptosKeyPairEd25519(mnemonics: "talk speak heavy can high immune romance language alarm sorry capable flame")
@@ -71,43 +72,61 @@ final class AptosSwiftTests: XCTestCase {
         XCTAssertEqual(try BorshEncoder().encode(signedTx), Data(hex: "000000000000000000000000000000000000000000000000000000000a550c1800000000000000000126a11ceb0b030000000105000100000000050601000000000000000600000000000000001a0102010700000000000000000000000000000000000000000000000000000000000000010a6170746f735f636f696e094170746f73436f696e00010002d0070000000000000000000000000000ffffffffffffffff040020b9c6ee1630ef3e711144a648db06bbb2284f7274cfbee53ffcee503cc1a4920040662b626455b62ca41ef35b34c74ef0b848c5b3679ae3cf32af47d10ef3372ed4060cfaaeee6ab71ab0034951c21e589d70512c8c536625f532ebf9f127867209"))
     }
     
-    func testProviderExamples() throws {
+    func testFaucetClientExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
-        let provider = AptosRPCProvider(nodeUrl: nodeUrl)
+        let faucetClient = AptosFaucetClient(url: faucetUrl)
         DispatchQueue.global().async {
             do {
-                let healthy = try provider.healthy().wait()
+                let address = try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
+                let hashs = try faucetClient.fundAccount(address: address, amount: 5000).wait()
+                debugPrint(hashs)
+                XCTAssertTrue(hashs.count > 0)
+
+                reqeustExpectation.fulfill()
+            } catch {
+                reqeustExpectation.fulfill()
+            }
+        }
+        wait(for: [reqeustExpectation], timeout: 30)
+    }
+    
+    func testClientExamples() throws {
+        let reqeustExpectation = expectation(description: "Tests")
+        let client = AptosClient(url: nodeUrl)
+        DispatchQueue.global().async {
+            do {
+                let healthy = try client.healthy().wait()
                 XCTAssertEqual(healthy.message, "aptos-node:ok")
                 
-                let ledgerInfo = try provider.getLedgerInfo().wait()
+                let ledgerInfo = try client.getLedgerInfo().wait()
                 XCTAssertTrue(ledgerInfo.chainId > 0)
                 XCTAssertTrue((UInt64(ledgerInfo.blockHeight) ?? 0) > 0)
                 
                 let address = try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
-                let accountData = try provider.getAccount(address: address).wait()
+                let accountData = try client.getAccount(address: address).wait()
                 XCTAssertEqual(accountData.authenticationKey, address.address)
                 
-                let accountResources = try provider.getAccountResources(address: address).wait()
+                let accountResources = try client.getAccountResources(address: address).wait()
                 XCTAssertTrue(!accountResources.isEmpty)
                 
                 let resourceType = "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>"
-                let accountResource = try provider.getAccountResource(address: address, resourceType: resourceType).wait()
+                let accountResource = try client.getAccountResource(address: address, resourceType: resourceType).wait()
                 XCTAssertEqual(accountResource.type, resourceType)
                 
-                let coinStore = try accountResource.to(AptosRPC.AccountResourceData.CoinStore.self)
+                let coinStore = try accountResource.to(AptosClient.AccountResourceData.CoinStore.self)
                 XCTAssertTrue(!coinStore.coin.value.isEmpty)
                 
-                let accountModules = try provider.getAccountModules(address: try AptosAddress("0x1")).wait()
+                let accountModules = try client.getAccountModules(address: try AptosAddress("0x1")).wait()
                 XCTAssertTrue(!accountModules.isEmpty)
                 
-                let accountModule = try provider.getAccountModule(address: try AptosAddress("0x1"), moduleName: "code").wait()
+                let accountModule = try client.getAccountModule(address: try AptosAddress("0x1"), moduleName: "code").wait()
                 XCTAssertTrue(!accountModule.bytecode.isEmpty)
                 
-                let block = try provider.getBlock(0).wait()
+                let block = try client.getBlock(0).wait()
                 XCTAssertEqual(block.blockHeight, "0")
                 
-                let transaction = try provider.getTransactionByHash("0xafa0af9bd0365114c53919a65d9e3b9c981023e454d8e1ea84253251eec7c201").wait()
-                XCTAssertEqual(transaction["hash"], "0xafa0af9bd0365114c53919a65d9e3b9c981023e454d8e1ea84253251eec7c201")
+                let transaction = try client.getTransactionByHash("0x3993463e2d17aca60d1114652c9c4ca4fe59b571ea343c16dd97e7080b3ad635").wait()
+                XCTAssertEqual(transaction["hash"], "0x3993463e2d17aca60d1114652c9c4ca4fe59b571ea343c16dd97e7080b3ad635")
 
                 reqeustExpectation.fulfill()
             } catch {
@@ -119,13 +138,13 @@ final class AptosSwiftTests: XCTestCase {
     
     func testSimulateTransactionExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
-        let provider = AptosRPCProvider(nodeUrl: nodeUrl)
+        let client = AptosClient(url: self.nodeUrl)
         DispatchQueue.global().async {
             do {
                 let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
                 
-                let sequenceNumber = try provider.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
-                let chainId = try provider.getLedgerInfo().wait().chainId
+                let sequenceNumber = try client.getAccount(address: AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")).wait().sequenceNumber
+                let chainId = try client.getLedgerInfo().wait().chainId
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
                 let amount = UInt64(10)
                 
@@ -148,7 +167,7 @@ final class AptosSwiftTests: XCTestCase {
                                                       expirationTimestampSecs: date,
                                                       chainId: UInt8(chainId),
                                                       payload: AptosTransactionPayload.EntryFunction(payload))
-                let result1 = try provider.simulateTransaction(transaction, publicKey: keyPair.publicKey).wait()
+                let result1 = try client.simulateTransaction(transaction, publicKey: keyPair.publicKey).wait()
                 debugPrint(result1)
                 reqeustExpectation.fulfill()
             } catch let error {
@@ -161,14 +180,14 @@ final class AptosSwiftTests: XCTestCase {
     
     func testSendBCSTransactionExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
-        let provider = AptosRPCProvider(nodeUrl: nodeUrl)
+        let client = AptosClient(url: self.nodeUrl)
         DispatchQueue.global().async {
             do {
                 // Address[0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5]
                 let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
                 
-                let sequenceNumber = try provider.getAccount(address: keyPair.address).wait().sequenceNumber
-                let chainId = try provider.getLedgerInfo().wait().chainId
+                let sequenceNumber = try client.getAccount(address: keyPair.address).wait().sequenceNumber
+                let chainId = try client.getLedgerInfo().wait().chainId
                 let to = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
                 let amount = UInt64(10)
                 
@@ -192,7 +211,7 @@ final class AptosSwiftTests: XCTestCase {
                                                       chainId: UInt8(chainId),
                                                       payload: AptosTransactionPayload.EntryFunction(payload))
                 let signedtransaction = try transaction.sign(keyPair)
-                let result = try provider.submitSignedTransaction(signedtransaction).wait()
+                let result = try client.submitSignedTransaction(signedtransaction).wait()
                 print(result)
                 
                 reqeustExpectation.fulfill()
