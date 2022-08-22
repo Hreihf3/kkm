@@ -71,7 +71,7 @@ public class AptosClientBase {
         let queue = DispatchQueue(label: "aptos.post")
         queue.async {
             let url = self.url.appendPath(path).appendingQueryParameters(queryParameters)
-            debugPrint("POST \(url)")
+//            debugPrint("POST \(url)")
             var urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData)
             urlRequest.httpMethod = "POST"
             
@@ -85,7 +85,7 @@ public class AptosClientBase {
                 urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
             }
             urlRequest.httpBody = body
-            debugPrint(body?.toHexString() ?? "")
+//            debugPrint(body?.toHexString() ?? "")
 
             task = self.session.dataTask(with: urlRequest){ (data, response, error) in
                 guard error == nil else {
@@ -103,7 +103,7 @@ public class AptosClientBase {
         return rp.promise.ensure(on: queue) {
             task = nil
         }.map(on: queue){ (data: Data) throws -> T in
-            debugPrint(String(data: data, encoding: .utf8) ?? "")
+//            debugPrint(String(data: data, encoding: .utf8) ?? "")
             
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
