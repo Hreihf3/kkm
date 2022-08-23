@@ -77,10 +77,13 @@ final class AptosSwiftTests: XCTestCase {
         let faucetClient = AptosFaucetClient(url: faucetUrl)
         DispatchQueue.global().async {
             do {
-                let address = try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
-                let hashs = try faucetClient.fundAccount(address: address, amount: 1000000).wait()
-                debugPrint(hashs)
-                XCTAssertTrue(hashs.count > 0)
+                let address1 = try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
+                let address2 = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
+                let hashs1 = try faucetClient.fundAccount(address: address1, amount: 1000000).wait()
+                let hashs2 = try faucetClient.fundAccount(address: address2, amount: 1000000).wait()
+                debugPrint(hashs1 + hashs2)
+                XCTAssertTrue(hashs1.count > 0)
+                XCTAssertTrue(hashs2.count > 0)
 
                 reqeustExpectation.fulfill()
             } catch {
