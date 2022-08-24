@@ -49,6 +49,9 @@ debugPrint(keyPair.address.address)
 ```
 
 ### Node API
+
+#### Faucet Client
+
 ```swift
 import AptosSwift
 
@@ -58,6 +61,8 @@ let faucetClient = AptosFaucetClient(url: faucetUrl)
 let address = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
 let hashs = try faucetClient.fundAccount(address: address, amount: 1000000).wait()
 ```
+
+#### Client
 
 ```swift
 import AptosSwift
