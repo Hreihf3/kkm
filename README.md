@@ -55,7 +55,7 @@ debugPrint(keyPair.address.address)
 ```swift
 import AptosSwift
 
-let faucetUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
+let faucetUrl = URL(string: "https://faucet.devnet.aptoslabs.com")!
 let faucetClient = AptosFaucetClient(url: faucetUrl)
                 
 let address = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
