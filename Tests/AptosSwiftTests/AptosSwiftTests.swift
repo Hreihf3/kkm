@@ -8,9 +8,9 @@ final class AptosSwiftTests: XCTestCase {
     
     func testKeyPair() throws {
         let keypair1 = try AptosKeyPairEd25519(mnemonics: "talk speak heavy can high immune romance language alarm sorry capable flame")
-        XCTAssertEqual(keypair1.privateKeyHex, "0x2e0c19e199f9ba403e35817f078114bdcb6ea6341e749f02e4fea83ca055baa7")
-        XCTAssertEqual(keypair1.publicKey.hex, "0x8d9f75b3a99e9d401a8e1c911fbc51e0d77920f8975f7df57ec34f9a6e454c43")
-        XCTAssertEqual(keypair1.address.address, "0x43cf7854347a34ec167a1980c324221005936d322683aa592bef6de7e46bc575")
+        XCTAssertEqual(keypair1.privateKeyHex, "0xf2fff935ff731761e583048d74906fb295d62175814a3b13a84ee5b4122aa6c5")
+        XCTAssertEqual(keypair1.publicKey.hex, "0x5e5e5e45810c23fd084de6e9c39bb679454771df9f4277e9ff110427998af8eb")
+        XCTAssertEqual(keypair1.address.address, "0x2b8710cebbfd6a63539e0f3940c5ccbb268c0d0b649fd1a0eb39d3687bcafffd")
         
         let keypair2 = try AptosKeyPairEd25519(privateKeyData: Data(hex: "2e0c19e199f9ba403e35817f078114bdcb6ea6341e749f02e4fea83ca055baa7"))
         XCTAssertEqual(keypair2.address.address, "0x43cf7854347a34ec167a1980c324221005936d322683aa592bef6de7e46bc575")
