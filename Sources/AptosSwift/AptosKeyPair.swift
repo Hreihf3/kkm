@@ -1,6 +1,6 @@
 //
 //  AptosKeyPair.swift
-//  
+//
 //
 //  Created by xgblin on 2022/8/2.
 //
@@ -44,12 +44,12 @@ public struct AptosKeyPairEd25519 {
         self.address = try AptosAddress(Data(keyPair.publicKey.bytes + [0x00]).sha3(.sha256))
     }
     
-    public init(mnemonics: String) throws {
+    public init(mnemonics: String, path: String = "m/44'/637'/0'/0'/0'") throws {
         guard let seed = BIP39.seedFromMmemonics(mnemonics) else {
             throw AptosError.keyError("Invalid Mnemonics")
         }
-        // let newSeed = NaclSign.KeyPair.deriveKey(path: "m/44'/637'/0'/0'", seed: seed).key
-        try self.init(seed: seed.subdata(in: 0..<32))
+        let newSeed = NaclSign.KeyPair.deriveKey(path: path, seed: seed).key
+        try self.init(seed: newSeed.subdata(in: 0..<32))
         self.mnemonics = mnemonics
     }
     
