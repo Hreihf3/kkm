@@ -100,9 +100,50 @@ final class AptosSwiftTests: XCTestCase {
             do {
                 let accountModule = try client.getAccountModule(address: try AptosAddress("0xf6994988bd40261af9431cd6dd3fcf765569719e66322c7a05cc78a89cd366d4"), moduleName: "FixedPriceMarket").wait()
                 XCTAssertTrue(!accountModule.bytecode.isEmpty)
-                
-                debugPrint(accountModule.abi!.exposedFunctions.filter({$0.isEntry && $0.name == "batch_buy_script"}).map({ [ "name": "\(accountModule.abi!.address)::\(accountModule.abi!.name)::\($0.name)", "params": $0.paramTypes.map({AptosTypeTag.typeTag($0)})] }))
 
+                // [[Address], [0x1::string::String], [0x1::string::String], [UInt64], [UInt64], [UInt64], [Address], [0x1::string::String]]
+                let typeArgs = accountModule.abi!.exposedFunctions.filter({$0.isEntry && $0.name == "batch_buy_script"}).first!.paramTypes.map({AptosTypeTag.typeTag($0)})
+                
+                let args = [
+                    [
+                        "0xf83d72a4c2a4965cace554724cf8358c27fa372c7f6e0340aaa4d1da144645f"
+                    ],
+                    [
+                        "RektCats"
+                    ],
+                    [
+                        "RektCats - #826"
+                    ],
+                    [
+                        "0"
+                    ],
+                    [
+                        "1"
+                    ],
+                    [
+                        "100000000"
+                    ],
+                    [
+                        "0xf6994988bd40261af9431cd6dd3fcf765569719e66322c7a05cc78a89cd366d4"
+                    ],
+                    [
+                        "souffle"
+                    ]
+                 ]
+                
+                var writer = Data()
+                try AptosTransactionBuilder().serializeArgs(args, typeTags: typeArgs, to: &writer)
+                let argDatas = try BorshDecoder().decode(Array<VarData>.self, from: writer).map({ $0.data })
+                
+                debugPrint(try BorshDecoder().decode([AptosAddress].self, from: argDatas[0]))
+                debugPrint(try BorshDecoder().decode([String].self, from: argDatas[1]))
+                debugPrint(try BorshDecoder().decode([String].self, from: argDatas[2]))
+                debugPrint(try BorshDecoder().decode([UInt64].self, from: argDatas[3]))
+                debugPrint(try BorshDecoder().decode([UInt64].self, from: argDatas[4]))
+                debugPrint(try BorshDecoder().decode([UInt64].self, from: argDatas[5]))
+                debugPrint(try BorshDecoder().decode([AptosAddress].self, from: argDatas[6]))
+                debugPrint(try BorshDecoder().decode([String].self, from: argDatas[7]))
+                
                 reqeustExpectation.fulfill()
             } catch let e {
                 debugPrint(e)

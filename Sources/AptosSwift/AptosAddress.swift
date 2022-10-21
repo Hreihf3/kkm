@@ -31,7 +31,9 @@ public struct AptosAddress: CustomStringConvertible {
     }
     
     public init(_ address: String) throws {
-        try self.init(Data(hex: address.stripHexPrefix()))
+        let hex = address.stripHexPrefix()
+        let prefix = hex.count % 2 == 0 ? "" : "0"
+        try self.init(Data(hex: prefix + hex))
     }
     
     public var description: String {
