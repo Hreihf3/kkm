@@ -166,7 +166,7 @@ extension AptosClient {
     public struct UserTransaction: Decodable {
         public let version: String
         public let hash: String
-        public let stateRootHash: String
+        public let stateChangeHash: String
         public let eventRootHash: String
         public let gasUsed: String
         public let success: Bool
