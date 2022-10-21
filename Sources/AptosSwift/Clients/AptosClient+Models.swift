@@ -85,9 +85,56 @@ extension AptosClient {
         }
     }
     
-    public struct AccountModule: Decodable {
+    public struct MoveFunctionGenericTypeParam: Decodable {
+        public let constraints: [String]?
+    }
+    
+    public struct MoveFunction: Decodable {
+        public let name: String
+        public let visibility: String
+        public let isEntry: Bool
+        public let genericTypeParams: [MoveFunctionGenericTypeParam]
+        public let params: [String]
+        public let `return`: [String]
+        
+        public var paramTypes: [String] {
+            return params.filter({ $0 != "&signer" })
+        }
+    }
+    
+    public struct MoveStructGenericTypeParam: Decodable {
+        public let constraints: [String]?
+    }
+    
+    public struct MoveStructField: Decodable {
+        public let name: String
+        public let type: String
+    }
+    
+    public struct MoveStruct: Decodable {
+        public let name: String
+        public let isNative: Bool
+        public let abilities: [String]
+        public let genericTypeParams: [MoveStructGenericTypeParam]
+        public let fields: [MoveStructField]
+    }
+    
+    public struct MoveModule: Decodable {
+        public let address: String
+        public let name: String
+        public let friends: [AnyCodable]
+        public let exposedFunctions: [MoveFunction]
+        public let structs: [MoveStruct]
+    }
+    
+    public struct MoveModuleBytecode: Decodable {
         public let bytecode: String
-        public let abi: AnyCodable
+        public let abi: MoveModule?
+    }
+    
+    public struct MoveScriptBytecode: Decodable {
+        public let bytecode: String
+        public let abi: MoveFunction?
     }
     
     public struct Block: Decodable {

@@ -7,25 +7,74 @@
 
 import Foundation
 
-public enum AptosTypeTag {
+public indirect enum AptosTypeTag {
     case Bool
     case UInt8
     case UInt64
     case UInt128
     case Address
     case Signer
-    case Data
+    case Vector(AptosTypeTag)
     case Struct(AptosStructTag)
     case Unknown
 }
 
-extension AptosTypeTag {
-    public var stringValue: String {
+extension AptosTypeTag: CustomStringConvertible {
+    public var description: String {
         switch self {
-        case .Struct(let tag):
-            return tag.rawValue
+        case .Bool:
+            return "Bool"
+        case .UInt8:
+            return "UInt8"
+        case .UInt64:
+            return "UInt64"
+        case .UInt128:
+            return "UInt128"
+        case .Address:
+            return "Address"
+        case .Signer:
+            return "Signer"
+        case .Vector(let typeTag):
+            return "[\(typeTag)]"
+        case .Struct(let structTag):
+            return "\(structTag.rawValue)"
+        case .Unknown:
+            return "Unknown"
+        }
+    }
+    
+    public static func typeTag(_ string: String) -> Self {
+        var type: String
+        var value: String?
+        if string.hasPrefix("vector") {
+            type = "vector"
+            let start = string.index(string.startIndex, offsetBy: type.count + 1)
+            let end = string.index(string.endIndex, offsetBy: -1)
+            value = String(string[start..<end])
+        } else if string.components(separatedBy: "::").count == 3 {
+            type = "struct"
+            value = string
+        } else {
+            type = string
+        }
+        
+        switch type {
+        case "u8":
+            return .UInt8
+        case "u64":
+            return .UInt64
+        case "u128":
+            return .UInt128
+        case "bool":
+            return .Bool
+        case "address":
+            return .Address
+        case "vector":
+            return .Vector(AptosTypeTag.typeTag(value!))
+        case "struct":
+            return (try? .Struct(AptosStructTag.fromString(value!))) ?? .Unknown
         default:
-            return ""
+            return .Unknown
         }
     }
 }
@@ -45,8 +94,9 @@ extension AptosTypeTag: BorshCodable {
             try UVarInt(4).serialize(to: &writer)
         case .Signer:
             try UVarInt(5).serialize(to: &writer)
-        case .Data:
+        case .Vector(let typeTag):
             try UVarInt(6).serialize(to: &writer)
+            try typeTag.serialize(to: &writer)
         case .Struct(let structTag):
             try UVarInt(7).serialize(to: &writer)
             try structTag.serialize(to: &writer)
@@ -64,7 +114,7 @@ extension AptosTypeTag: BorshCodable {
         case 3: self = .UInt128
         case 4: self = .Address
         case 5: self = .Signer
-        case 6: self = .Data
+        case 6: self = .Vector(try AptosTypeTag.init(from: &reader))
         case 7: self = .Struct(try AptosStructTag.init(from: &reader))
         default: throw AptosError.otherEror("Unknown variant index for TypeTag: \(index)")
         }
@@ -78,7 +128,7 @@ public struct AptosStructTag: BorshCodable {
     public let typeArgs: [AptosTypeTag]
     
     public var rawValue: String {
-        return "\(address.address)::\(moduleName.value)::\(name.value)"
+        return "\(address.shortString)::\(moduleName.value)::\(name.value)"
     }
     
     public init(address: AptosAddress, moduleName: AptosIdentifier, name: AptosIdentifier, typeArgs: [AptosTypeTag]) {

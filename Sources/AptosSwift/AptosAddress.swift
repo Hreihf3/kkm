@@ -7,12 +7,20 @@
 
 import Foundation
 
-public struct AptosAddress {
+public struct AptosAddress: CustomStringConvertible {
     public static let SIZE: Int = 32
     
     public var data: Data
     public var address: String {
         return self.data.toHexString().addHexPrefix()
+    }
+    
+    public var shortString: String {
+        var shortString = self.address
+        while shortString.hasPrefix("0x0") {
+            shortString = shortString.replacingOccurrences(of: "0x0", with: "0x")
+        }
+        return shortString
     }
     
     public init(_ data: Data) throws {
@@ -24,6 +32,10 @@ public struct AptosAddress {
     
     public init(_ address: String) throws {
         try self.init(Data(hex: address.stripHexPrefix()))
+    }
+    
+    public var description: String {
+        return shortString
     }
 }
 

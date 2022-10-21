@@ -3,7 +3,7 @@ import XCTest
 
 final class AptosSwiftTests: XCTestCase {
     
-    let nodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
+    let nodeUrl = URL(string: "https://fullnode.mainnet.aptoslabs.com")!
     let faucetUrl = URL(string: "https://faucet.devnet.aptoslabs.com")!
     
     func testKeyPair() throws {
@@ -93,6 +93,25 @@ final class AptosSwiftTests: XCTestCase {
         wait(for: [reqeustExpectation], timeout: 30)
     }
     
+    func testGetAbiExamples() throws {
+        let reqeustExpectation = expectation(description: "Tests")
+        let client = AptosClient(url: nodeUrl)
+        DispatchQueue.global().async {
+            do {
+                let accountModule = try client.getAccountModule(address: try AptosAddress("0xf6994988bd40261af9431cd6dd3fcf765569719e66322c7a05cc78a89cd366d4"), moduleName: "FixedPriceMarket").wait()
+                XCTAssertTrue(!accountModule.bytecode.isEmpty)
+                
+                debugPrint(accountModule.abi!.exposedFunctions.filter({$0.isEntry && $0.name == "batch_buy_script"}).map({ [ "name": "\(accountModule.abi!.address)::\(accountModule.abi!.name)::\($0.name)", "params": $0.paramTypes.map({AptosTypeTag.typeTag($0)})] }))
+
+                reqeustExpectation.fulfill()
+            } catch let e {
+                debugPrint(e)
+                reqeustExpectation.fulfill()
+            }
+        }
+        wait(for: [reqeustExpectation], timeout: 30)
+    }
+    
     func testClientExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
         let client = AptosClient(url: nodeUrl)
@@ -132,7 +151,8 @@ final class AptosSwiftTests: XCTestCase {
                 XCTAssertEqual(transaction["hash"], "0x3993463e2d17aca60d1114652c9c4ca4fe59b571ea343c16dd97e7080b3ad635")
 
                 reqeustExpectation.fulfill()
-            } catch {
+            } catch let e {
+                debugPrint(e)
                 reqeustExpectation.fulfill()
             }
         }

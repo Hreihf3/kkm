@@ -68,7 +68,7 @@ public class AptosClient: AptosClientBase {
     /// Get account modules
     /// - Parameter address: Hex encoded 32 byte Aptos account address
     /// - Returns: All account modules at a given address at a specific ledger version (AKA transaction version)
-    public func getAccountModules(address: AptosAddress) -> Promise<[AptosClient.AccountModule]> {
+    public func getAccountModules(address: AptosAddress) -> Promise<[AptosClient.MoveModuleBytecode]> {
         return GET(path: "/v1/accounts/\(address.address)/modules")
     }
     
@@ -77,7 +77,7 @@ public class AptosClient: AptosClientBase {
     ///   - address: Hex encoded 32 byte Aptos account address
     ///   - moduleName: Module name
     /// - Returns: the module with a specific name residing at a given account at a specified ledger version (AKA transaction version)
-    public func getAccountModule(address: AptosAddress, moduleName: String) -> Promise<AptosClient.AccountModule> {
+    public func getAccountModule(address: AptosAddress, moduleName: String) -> Promise<AptosClient.MoveModuleBytecode> {
         return GET(path: "/v1/accounts/\(address.address)/module/\(moduleName)")
     }
     
