@@ -128,7 +128,7 @@ public struct AptosStructTag: BorshCodable {
     public let typeArgs: [AptosTypeTag]
     
     public var rawValue: String {
-        return "\(address.shortString)::\(moduleName.value)::\(name.value)"
+        return "\(address.address)::\(moduleName.value)::\(name.value)"
     }
     
     public init(address: AptosAddress, moduleName: AptosIdentifier, name: AptosIdentifier, typeArgs: [AptosTypeTag]) {

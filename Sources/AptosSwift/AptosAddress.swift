@@ -12,15 +12,11 @@ public struct AptosAddress: CustomStringConvertible {
     
     public var data: Data
     public var address: String {
-        return self.data.toHexString().addHexPrefix()
-    }
-    
-    public var shortString: String {
-        var shortString = self.address
-        while shortString.hasPrefix("0x0") {
-            shortString = shortString.replacingOccurrences(of: "0x0", with: "0x")
+        var addressString = self.data.toHexString().addHexPrefix()
+        while addressString.hasPrefix("0x0") {
+            addressString = addressString.replacingOccurrences(of: "0x0", with: "0x")
         }
-        return shortString
+        return addressString
     }
     
     public init(_ data: Data) throws {
@@ -37,7 +33,7 @@ public struct AptosAddress: CustomStringConvertible {
     }
     
     public var description: String {
-        return shortString
+        return address
     }
 }
 
