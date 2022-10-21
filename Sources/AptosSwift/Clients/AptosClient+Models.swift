@@ -98,7 +98,7 @@ extension AptosClient {
         public let `return`: [String]
         
         public var paramTypes: [String] {
-            return params.filter({ $0 != "&signer" })
+            return params.filter({ $0 != "&signer" && $0 != "signer" })
         }
     }
     
