@@ -8,6 +8,7 @@
 import Foundation
 
 public struct AptosTransactionBuilder {
+    public init() {}
     
     public func ensureBool(arg: Any) throws -> Bool {
         if type(of: arg) == Bool.self {
