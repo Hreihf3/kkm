@@ -147,7 +147,7 @@ extension AptosClient {
     }
     
     public struct Event: Decodable {
-        public let key: String
+        public let key: String?
         public let sequenceNumber: String
         public let type: String
         public let data: AnyCodable
