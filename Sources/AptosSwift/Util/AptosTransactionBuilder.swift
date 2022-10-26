@@ -34,6 +34,9 @@ public struct AptosTransactionBuilder {
         if type(of: arg) == UInt64.self {
             return arg as! UInt64
         }
+        if type(of: arg) == Int.self {
+            return arg as! UInt64
+        }
         if type(of: arg) == String.self, let v = UInt64(arg as! String) {
             return v
         }
