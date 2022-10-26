@@ -93,10 +93,12 @@ public class AptosClient: AptosClientBase {
     /// - Parameter rawTransaction AptosRawTransaction
     /// - Parameter publicKey AptosPublicKeyEd25519
     /// - Returns: Simulation result in the form of UserTransaction
-    public func simulateTransaction(_ rawTransaction: AptosRawTransaction, publicKey: AptosPublicKeyEd25519) -> Promise<[AptosClient.UserTransaction]> {
+    public func simulateTransaction(_ rawTransaction: AptosRawTransaction, publicKey: AptosPublicKeyEd25519, estimateGasUnitPrice: Bool = true, estimateMaxGasAmount: Bool = false, estimatePrioritizedGasUnitPrice: Bool = false) -> Promise<[AptosClient.UserTransaction]> {
         let signedTransaction = rawTransaction.simulate(publicKey)
         let headers: [String: String] = ["Content-Type": "application/x.aptos.signed_transaction+bcs"]
-        let queryParams: [String: Any] = ["estimate_gas_unit_price": true,"estimate_max_gas_amount": true,"estimate_prioritized_gas_unit_price": true]
+        let queryParams: [String: Any] = ["estimate_gas_unit_price": estimateGasUnitPrice,
+                                          "estimate_max_gas_amount": estimateMaxGasAmount,
+                                          "estimate_prioritized_gas_unit_price": estimatePrioritizedGasUnitPrice]
         return POST(path: "/v1/transactions/simulate",queryParameters: queryParams, body: try? BorshEncoder().encode(signedTransaction), headers: headers)
     }
     
