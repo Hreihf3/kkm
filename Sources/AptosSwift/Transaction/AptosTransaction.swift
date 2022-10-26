@@ -13,8 +13,8 @@ public let RAW_TRANSACTION_SALT = "APTOS::RawTransaction"
 public struct AptosRawTransaction {
     public let sender: AptosAddress
     public let sequenceNumber: UInt64
-    public let maxGasAmount: UInt64
-    public let gasUnitPrice: UInt64
+    public var maxGasAmount: UInt64
+    public var gasUnitPrice: UInt64
     public let expirationTimestampSecs: UInt64
     public let chainId: UInt8
     public let payload: AptosTransactionPayload
