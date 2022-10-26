@@ -14,6 +14,9 @@ public struct AptosTransactionBuilder {
         if type(of: arg) == Bool.self {
             return arg as! Bool
         }
+        if type(of: arg) == Int.self {
+            return arg as! Int > 0 ? true : false
+        }
         if type(of: arg) == String.self {
             return (arg as! NSString).boolValue
         }
@@ -23,6 +26,9 @@ public struct AptosTransactionBuilder {
     public func ensureUInt8(arg: Any) throws -> UInt8 {
         if type(of: arg) == UInt8.self {
             return arg as! UInt8
+        }
+        if type(of: arg) == Int.self {
+            return UInt8(arg as! Int)
         }
         if type(of: arg) == String.self, let v = UInt8(arg as! String) {
             return v
@@ -46,6 +52,9 @@ public struct AptosTransactionBuilder {
     public func ensureUInt128(arg: Any) throws -> UInt128 {
         if type(of: arg) == UInt128.self {
             return arg as! UInt128
+        }
+        if type(of: arg) == Int.self {
+            return UInt128(arg as! Int)
         }
         if type(of: arg) == String.self, let v = UInt128(arg as! String) {
             return v
