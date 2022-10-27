@@ -22,4 +22,13 @@ extension String {
         }
         return self
     }
+    
+    func isHex() -> Bool {
+        let regex = try? NSRegularExpression(pattern: "^[A-Fa-f0-9]+$", options: .caseInsensitive)
+        let text = self.stripHexPrefix()
+        if let result = regex?.matches(in: text, options: [], range: NSRange(location: 0, length: text.count)), result.count > 0 {
+            return true
+        }
+        return false
+    }
 }

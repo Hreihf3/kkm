@@ -27,6 +27,9 @@ public struct AptosAddress: CustomStringConvertible {
     }
     
     public init(_ address: String) throws {
+        guard address.isHex() else {
+            throw AptosError.keyError("Invalid address string. \(address)")
+        }
         let hex = address.stripHexPrefix()
         let prefix = hex.count % 2 == 0 ? "" : "0"
         try self.init(Data(hex: prefix + hex))

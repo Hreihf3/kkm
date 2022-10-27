@@ -19,6 +19,13 @@ final class AptosSwiftTests: XCTestCase {
         XCTAssertEqual(keypair3.address.address, "0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
     }
     
+    func testAddressExamples() throws {
+        XCTAssertTrue("aaa".isHex())
+        XCTAssertTrue("0aaa".isHex())
+        XCTAssertTrue("hello".isHex())
+        XCTAssertTrue("你好".isHex())
+    }
+    
     func testDecoderAndEncoderExamples() throws {
         XCTAssertEqual(try BorshDecoder().decode(UVarInt.self, from: Data(hex: "cdeaec31")).value.description, "104543565")
         XCTAssertEqual(try BorshEncoder().encode(UVarInt(4294967295)).toHexString(), "ffffffff0f")
