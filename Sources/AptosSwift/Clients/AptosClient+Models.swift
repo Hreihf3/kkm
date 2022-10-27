@@ -10,7 +10,7 @@ import AnyCodable
 
 extension AptosClient {
     public struct Error: Decodable {
-        public let code: Int
+        public let errorCode: String
         public let message: String
     }
     

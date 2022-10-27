@@ -293,4 +293,21 @@ final class AptosSwiftTests: XCTestCase {
         }
         wait(for: [reqeustExpectation], timeout: 30)
     }
+    func testGetResourceExamples() throws {
+        let reqeustExpectation = expectation(description: "Tests")
+        let client = AptosClient(url: self.nodeUrl)
+        let account = try! AptosAddress("0xa2e71c2e63610a0483b9e2dacec2d3072ee9a0dd8f9cd62df5a2298b44ead2c7")
+        let usdtResource = "0x1::coin::CoinStore<0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDT>"
+        DispatchQueue.global().async {
+            do {
+                let accountResource = try client.getAccountResource(address: account, resourceType: usdtResource).wait()
+                print(accountResource.type)
+                reqeustExpectation.fulfill()
+            } catch let error {
+                print(error.localizedDescription)
+                reqeustExpectation.fulfill()
+            }
+        }
+        wait(for: [reqeustExpectation], timeout: 30)
+    }
 }
