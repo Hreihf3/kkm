@@ -15,6 +15,7 @@ public enum AptosError: LocalizedError {
     case providerError(String)
     case keyError(String)
     case otherEror(String)
+    case resoultError(String, String)
     
     public var errorDescription: String? {
         switch self {
@@ -31,6 +32,8 @@ public enum AptosError: LocalizedError {
         case .keyError(let message):
             return message
         case .otherEror(let message):
+            return message
+        case .resoultError(_, let message):
             return message
         }
     }

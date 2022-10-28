@@ -54,7 +54,7 @@ public class AptosClientBase {
                return resp
             }
             if let errorResult = try? decoder.decode(AptosClient.Error.self, from: data) {
-               throw AptosError.providerError(errorResult.message)
+                throw AptosError.resoultError(errorResult.errorCode, errorResult.message)
             }
             throw AptosError.providerError("Parameter error or received wrong message")
         }
@@ -111,7 +111,7 @@ public class AptosClientBase {
                 return resp
             }
             if let errorResult = try? decoder.decode(AptosClient.Error.self, from: data) {
-                throw AptosError.providerError(errorResult.message)
+                throw AptosError.resoultError(errorResult.errorCode, errorResult.message)
             }
             throw AptosError.providerError("Parameter error or received wrong message")
         }

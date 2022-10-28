@@ -19,13 +19,6 @@ final class AptosSwiftTests: XCTestCase {
         XCTAssertEqual(keypair3.address.address, "0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
     }
     
-    func testAddressExamples() throws {
-        XCTAssertTrue("aaa".isHex())
-        XCTAssertTrue("0aaa".isHex())
-        XCTAssertTrue("hello".isHex())
-        XCTAssertTrue("你好".isHex())
-    }
-    
     func testDecoderAndEncoderExamples() throws {
         XCTAssertEqual(try BorshDecoder().decode(UVarInt.self, from: Data(hex: "cdeaec31")).value.description, "104543565")
         XCTAssertEqual(try BorshEncoder().encode(UVarInt(4294967295)).toHexString(), "ffffffff0f")
@@ -304,6 +297,32 @@ final class AptosSwiftTests: XCTestCase {
                 print(accountResource.type)
                 reqeustExpectation.fulfill()
             } catch let error {
+                print(error.localizedDescription)
+                reqeustExpectation.fulfill()
+            }
+        }
+        wait(for: [reqeustExpectation], timeout: 30)
+    }
+    
+    func testResourceNotFountExamples() throws {
+        let keypair = try! AptosKeyPairEd25519.randomKeyPair()
+        let reqeustExpectation = expectation(description: "Tests")
+        let client = AptosClient(url: self.nodeUrl)
+        DispatchQueue.global().async {
+            do {
+                let accountResource = try client.getAccountResource(address: keypair.address, resourceType: "0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>").wait()
+                print(accountResource.type)
+                reqeustExpectation.fulfill()
+            } catch let error {
+                if let err = error as? AptosError {
+                    switch err {
+                    case .resoultError(let errorCode, let message):
+                        print(message)
+                        XCTAssertEqual(errorCode, "resource_not_found")
+                    default:
+                        print(error.localizedDescription)
+                    }
+                }
                 print(error.localizedDescription)
                 reqeustExpectation.fulfill()
             }
