@@ -4,7 +4,10 @@ import XCTest
 final class AptosSwiftTests: XCTestCase {
     
     let nodeUrl = URL(string: "https://fullnode.mainnet.aptoslabs.com")!
-    let faucetUrl = URL(string: "https://faucet.devnet.aptoslabs.com")!
+    let faucetUrl = URL(string: "https://faucet.mainnet.aptoslabs.com")!
+    
+    let devNodeUrl = URL(string: "https://fullnode.devnet.aptoslabs.com")!
+    let devFaucetUrl = URL(string: "https://faucet.devnet.aptoslabs.com")!
     
     func testKeyPair() throws {
         let keypair1 = try AptosKeyPairEd25519(mnemonics: "talk speak heavy can high immune romance language alarm sorry capable flame")
@@ -74,15 +77,15 @@ final class AptosSwiftTests: XCTestCase {
     
     func testFaucetClientExamples() throws {
         let reqeustExpectation = expectation(description: "Tests")
-        let faucetClient = AptosFaucetClient(url: faucetUrl)
+        let faucetClient = AptosFaucetClient(url: devFaucetUrl)
         DispatchQueue.global().async {
             do {
                 let address1 = try AptosAddress("0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5")
-                let address2 = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
-                let hashs1 = try faucetClient.fundAccount(address: address1, amount: 1000000).wait()
-                let hashs2 = try faucetClient.fundAccount(address: address2, amount: 1000000).wait()
-                debugPrint(hashs1 + hashs2)
+                let hashs1 = try faucetClient.fundAccount(address: address1, amount: 10000000).wait()
                 XCTAssertTrue(hashs1.count > 0)
+                
+                let address2 = try AptosAddress("0xde1cbede2618446ed917826e79cc30d93c39eeeef635f76225f714dc2d7e26b6")
+                let hashs2 = try faucetClient.fundAccount(address: address2, amount: 1000000).wait()
                 XCTAssertTrue(hashs2.count > 0)
 
                 reqeustExpectation.fulfill()
@@ -324,6 +327,51 @@ final class AptosSwiftTests: XCTestCase {
                     }
                 }
                 print(error.localizedDescription)
+                reqeustExpectation.fulfill()
+            }
+        }
+        wait(for: [reqeustExpectation], timeout: 30)
+    }
+    
+    func testTransferCoinsExamples() throws {
+        let reqeustExpectation = expectation(description: "TransferCoins")
+        let client = AptosClient(url: self.devNodeUrl)
+        DispatchQueue.global().async {
+            do {
+                // Address[0x689b6d1d3e54ebb582bef82be2e6781cccda150a6681227b4b0e43ab754834e5]
+                let keyPair = try AptosKeyPairEd25519(privateKeyData: Data(hex: "0x105f0dd49fb8eb999efd01ee72def91c65d8a81ae4a4803c42a56df14ace864a"))
+                
+                let sequenceNumber = try client.getAccount(address: keyPair.address).wait().sequenceNumber
+                let chainId = try client.getLedgerInfo().wait().chainId
+                let to = try AptosKeyPairEd25519.randomKeyPair().address
+                let amount = UInt64(10000)
+                
+                let function = try AptosEntryFunction.natural(module: "0x1::aptos_account",
+                                                               func: "transfer_coins",
+                                                               typeArgs: [
+                                                                AptosTypeTag.Struct(AptosStructTag.fromString("0x1::aptos_coin::AptosCoin"))
+                                                               ],
+                                                               args: [
+                                                                to.data,
+                                                                try BorshEncoder().encode(amount)
+                                                               ]
+                )
+                let payload = AptosTransactionPayloadEntryFunction(value: function)
+                let date = UInt64(Date().timeIntervalSince1970 + 60)
+                let transaction = AptosRawTransaction(sender: keyPair.address,
+                                                      sequenceNumber: UInt64(sequenceNumber)!,
+                                                      maxGasAmount: 500000,
+                                                      gasUnitPrice: 100,
+                                                      expirationTimestampSecs: date,
+                                                      chainId: UInt8(chainId),
+                                                      payload: AptosTransactionPayload.EntryFunction(payload))
+                let signedtransaction = try transaction.sign(keyPair)
+                let result = try client.submitSignedTransaction(signedtransaction).wait()
+                print(result)
+                
+                reqeustExpectation.fulfill()
+            } catch let error {
+                print(error)
                 reqeustExpectation.fulfill()
             }
         }
