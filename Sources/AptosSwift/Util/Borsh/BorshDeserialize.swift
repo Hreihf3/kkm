@@ -15,15 +15,33 @@ extension UInt8: BorshDeserializable {}
 extension UInt16: BorshDeserializable {}
 extension UInt32: BorshDeserializable {}
 extension UInt64: BorshDeserializable {}
-extension UInt128: BorshDeserializable {}
 extension Int8: BorshDeserializable {}
 extension Int16: BorshDeserializable {}
 extension Int32: BorshDeserializable {}
 extension Int64: BorshDeserializable {}
-extension Int128: BorshDeserializable {}
 
 public extension FixedWidthInteger {
     init(from reader: inout BinaryReader) throws {
+        var value: Self = .zero
+        let bytes = reader.read(count: UInt32(MemoryLayout<Self>.size))
+        let size = withUnsafeMutableBytes(of: &value, { bytes.copyBytes(to: $0) } )
+        assert(size == MemoryLayout<Self>.size)
+        self = Self(littleEndian: value)
+    }
+}
+
+extension UInt2X: BorshDeserializable {
+    public init(from reader: inout BinaryReader) throws {
+        var value: Self = .zero
+        let bytes = reader.read(count: UInt32(MemoryLayout<Self>.size))
+        let size = withUnsafeMutableBytes(of: &value, { bytes.copyBytes(to: $0) } )
+        assert(size == MemoryLayout<Self>.size)
+        self = Self(littleEndian: value)
+    }
+}
+
+extension Int2X: BorshDeserializable {
+    public init(from reader: inout BinaryReader) throws {
         var value: Self = .zero
         let bytes = reader.read(count: UInt32(MemoryLayout<Self>.size))
         let size = withUnsafeMutableBytes(of: &value, { bytes.copyBytes(to: $0) } )

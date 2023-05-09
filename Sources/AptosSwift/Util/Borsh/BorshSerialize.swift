@@ -16,15 +16,25 @@ extension UInt8: BorshSerializable {}
 extension UInt16: BorshSerializable {}
 extension UInt32: BorshSerializable {}
 extension UInt64: BorshSerializable {}
-extension UInt128: BorshSerializable {}
 extension Int8: BorshSerializable {}
 extension Int16: BorshSerializable {}
 extension Int32: BorshSerializable {}
 extension Int64: BorshSerializable {}
-extension Int128: BorshSerializable {}
 
 public extension FixedWidthInteger {
     func serialize(to writer: inout Data) throws {
+        writer.append(contentsOf: withUnsafeBytes(of: self.littleEndian) { Array($0) })
+    }
+}
+
+extension UInt2X: BorshSerializable {
+    public func serialize(to writer: inout Data) throws {
+        writer.append(contentsOf: withUnsafeBytes(of: self.littleEndian) { Array($0) })
+    }
+}
+
+extension Int2X: BorshSerializable {
+    public func serialize(to writer: inout Data) throws {
         writer.append(contentsOf: withUnsafeBytes(of: self.littleEndian) { Array($0) })
     }
 }
